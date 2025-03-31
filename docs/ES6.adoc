@@ -1,0 +1,913 @@
+:source-highlighter: highlight.js
+= Curso de ECMAScript 6
+:icons: font
+:toc: left
+:toclevels: 2
+
+== 1. Introducción
+
+- ¿Qué es ECMAScript?  
+  ECMAScript es el estándar que define el lenguaje de scripting sobre el cual se basa JavaScript. Establece las especificaciones para la sintaxis, tipos, declaraciones, y estructuras fundamentales que varios entornos (como navegadores y servidores) implementan.
+
+- Evolución de ECMAScript: de ES5 a ES6  
+  ECMAScript 5 (ES5) fue una versión ampliamente adoptada que sentó las bases de muchas aplicaciones web modernas. Con la introducción de ECMAScript 6 (ES6) en 2015, se incorporaron numerosas mejoras y nuevas funcionalidades, incluyendo:  
+  * Declaraciones de variables con let y const.  
+  * Funciones flecha para una sintaxis más concisa.  
+  * Template literals para una manipulación de cadenas más flexible.  
+  * Destructuring y parámetros por defecto, que simplifican el manejo de datos.  
+  Estas innovaciones han permitido escribir un código más limpio, modular y mantenible.
+
+- Ventajas y desventajas de ES6  
+  *Ventajas:*  
+  - Sintaxis más moderna y legible, que facilita el desarrollo y mantenimiento del código.  
+  - Soporte nativo para programación orientada a objetos mediante clases.  
+  - Incorporación de módulos, lo que mejora la organización y reutilización del código.  
+  - Nuevas funcionalidades (como el operador spread, destructuring, y funciones flecha) que permiten escribir código más conciso y expresivo.
+
+  *Desventajas:*  
+  - Requiere herramientas de transpilación (por ejemplo, Babel) para garantizar compatibilidad con navegadores y entornos antiguos.  
+  - La adopción de nuevas características puede generar una curva de aprendizaje para desarrolladores acostumbrados a ES5.  
+  - Algunas características avanzadas deben usarse con cuidado para evitar sobrecomplicaciones en proyectos grandes.
+
+== 2. Variables y Alcance
+
+En esta sección se abordarán los distintos modos de declarar variables en JavaScript y cómo afectan el alcance (scope) de las mismas, así como el comportamiento del hoisting.
+
+=== Declaración con var, let y const
+
+* **var**  
+  - Tiene un alcance de función, lo que significa que si se declara dentro de una función, estará disponible en todo el cuerpo de esta, incluso antes de su declaración gracias al hoisting (aunque su valor inicial será `undefined` hasta asignarlo).
+  - Permite redeclarar la misma variable en el mismo ámbito.
+  
+* **let**  
+  - Posee alcance de bloque, lo que limita su visibilidad al bloque en el que se declara (definido por llaves `{}`).
+  - No permite redeclarar la misma variable en el mismo ámbito.
+  - Se comporta de manera similar a `var` en cuanto al hoisting, pero introduce la "zona temporalmente muerta" (Temporal Dead Zone), impidiendo el acceso a la variable antes de su declaración.
+
+* **const**  
+  - Al igual que `let`, tiene alcance de bloque.
+  - Debe ser inicializada en el momento de la declaración y su valor no podrá ser reasignado, aunque se pueden modificar las propiedades de los objetos que se asignen a una constante.
+  - También está sujeta a la zona temporalmente muerta, lo que impide su uso antes de la declaración.
+
+Ejemplo práctico:
+
+[source, javascript]
+----
+function ejemploVariables() {
+    // Uso de var: hoisting permite la referencia, aunque el valor sea undefined
+    console.log(varVariable); // Imprime: undefined
+    var varVariable = "Soy una variable var";
+    console.log(varVariable); // Imprime: Soy una variable var
+
+    // Uso de let: no se puede acceder antes de su declaración
+    // console.log(letVariable); // Descomentar esta línea produce ReferenceError
+    let letVariable = "Soy una variable let";
+    console.log(letVariable); // Imprime: Soy una variable let
+
+    // Uso de const: debe inicializarse y no puede reasignarse
+    const constVariable = "Soy una variable const";
+    console.log(constVariable); // Imprime: Soy una variable const
+    // constVariable = "Nuevo valor"; // Descomentar produce TypeError
+}
+ejemploVariables();
+----
+
+=== Alcance de Bloque y Hoisting
+
+* **Alcance de Bloque**  
+  - Las variables declaradas con `let` y `const` están limitadas al bloque en que se definen. Esto permite un uso más seguro de las variables evitando conflictos y problemas de sobreescritura en bloques de código anidados.
+  
+Ejemplo de alcance de bloque:
+
+[source, javascript]
+----
+{
+  let bloqueLet = "Dentro del bloque";
+  const bloqueConst = "Constante dentro del bloque";
+  var bloqueVar = "Variable var con alcance global o de función";
+  console.log(bloqueLet);   // Imprime: Dentro del bloque
+  console.log(bloqueConst); // Imprime: Constante dentro del bloque
+}
+console.log(bloqueVar);   // Imprime: Variable var con alcance global o de función
+// console.log(bloqueLet);   // Descomentar produce ReferenceError, ya que no está definida fuera del bloque
+----
+
+* **Hoisting**  
+  - El hoisting es el comportamiento por el cual las declaraciones de variables (y funciones) son movidas a la parte superior de su contexto (función o global) durante la fase de compilación.
+  - Con `var`, la declaración se eleva, por lo que la variable existe aunque su valor sea `undefined` hasta que se asigne.
+  - Con `let` y `const`, aunque la declaración es elevada, no se pueden usar hasta que se ejecuta la línea real de declaración debido a la zona temporalmente muerta.
+
+Ejemplo que ilustra el hoisting:
+
+[source, javascript]
+----
+function hoistingEjemplo() {
+    console.log(a); // Imprime: undefined, ya que la declaración de 'a' se eleva
+    // console.log(b); // Descomentar produce ReferenceError por la TDZ (Temporal Dead Zone)
+    var a = 5;
+    let b = 10;
+}
+hoistingEjemplo();
+----
+
+Con estos conceptos claros, se facilita la elección correcta de la declaración adecuada dependiendo del contexto y se evita comportamientos inesperados en el código.
+
+== 3. Funciones
+
+Las funciones son bloques de código reutilizables que encapsulan lógica y permiten ejecutar tareas específicas. ES6 introduce mejoras y nuevas sintaxis que facilitan su uso y manejo.
+
+=== Funciones tradicionales vs funciones flecha
+
+* **Funciones tradicionales:**  
+  Se definen utilizando la palabra clave `function`. Tienen su propio contexto de `this`, lo que puede ser útil en ciertos escenarios pero también generar comportamientos inesperados en otros.
+
+  [source, javascript]
+  ----
+  function saludar(nombre) {
+      return "Hola " + nombre;
+  }
+  
+  console.log(saludar("Mundo")); // Imprime: Hola Mundo
+  ----
+
+* **Funciones flecha:**  
+  Se definen con la sintaxis `=>`, lo que resulta en una forma más concisa de escribir funciones. No poseen su propio `this`, heredándolo del contexto en el que fueron creadas, lo que puede simplificar la manipulación de contextos en algunos casos.
+
+  [source, javascript]
+  ----
+  const saludar = (nombre) => "Hola " + nombre;
+  
+  console.log(saludar("Mundo")); // Imprime: Hola Mundo
+  ----
+
+=== Parámetros por defecto
+
+Los parámetros por defecto permiten asignar un valor inicial a los parámetros de una función en caso de que no se proporcione uno durante su invocación. Esto ayuda a evitar errores y a escribir funciones más robustas.
+
+[source, javascript]
+----
+function crearUsuario(nombre = "Usuario", edad = 18) {
+    return { nombre, edad };
+}
+
+console.log(crearUsuario());           // Imprime: { nombre: "Usuario", edad: 18 }
+console.log(crearUsuario("Ana", 25));    // Imprime: { nombre: "Ana", edad: 25 }
+----
+
+=== Operador rest y spread
+
+* **Operador rest:**  
+  Permite agrupar el resto de argumentos en un solo parámetro mediante la sintaxis `...`. Esto es útil para funciones que reciben un número arbitrario de argumentos.
+
+[source, javascript]
+----
+function sumar(...numeros) {
+    return numeros.reduce((ac, num) => ac + num, 0);
+}
+
+console.log(sumar(1, 2, 3, 4)); // Imprime: 10
+----
+
+* **Operador spread:**  
+  Permite expandir los elementos de un array o las propiedades de un objeto en otro array u objeto. Facilita la clonación y combinación de estructuras de datos.
+
+Ejemplo con array:
+
+[source, javascript]
+----
+const numeros = [1, 2, 3];
+const masNumeros = [...numeros, 4, 5];
+console.log(masNumeros); // Imprime: [1, 2, 3, 4, 5]
+----
+
+Ejemplo con objeto:
+
+[source, javascript]
+----
+const usuario = { nombre: "Luis", edad: 30 };
+const usuarioActualizado = { ...usuario, edad: 31 };
+console.log(usuarioActualizado); // Imprime: { nombre: "Luis", edad: 31 }
+----
+
+Con estas características, ES6 ofrece una sintaxis más limpia y herramientas poderosas para trabajar con funciones, haciendo el código más flexible y fácil de mantener.
+
+== 4. Cadenas y Plantillas Literales
+
+Las cadenas en ES6 se han mejorado con la introducción de los template literals, que permiten escribir cadenas de texto de manera más clara y flexible.
+
+=== Uso de template literals
+
+Los template literals se definen utilizando comillas invertidas (`` ` ``) en lugar de comillas simples o dobles. Con ellos se pueden:
+
+- Escribir cadenas en múltiples líneas sin la necesidad de caracteres de escape.
+- Incluir fácilmente variables y expresiones en la cadena.
+
+Ejemplo:
+
+[source, javascript]
+----
+const mensaje = `Esta es una cadena
+en varias líneas sin necesidad de concatenación.`;
+console.log(mensaje);
+----
+
+=== Interpolación de variables y expresiones
+
+La interpolación se realiza usando la sintaxis ${} dentro de un template literal, lo que permite insertar variables o ejecutar expresiones directamente en la cadena.
+
+Ejemplo con variables:
+
+[source, javascript]
+----
+const nombre = "Carlos";
+const edad = 28;
+const saludo = `Hola, mi nombre es ${nombre} y tengo ${edad} años.`;
+console.log(saludo); // Imprime: Hola, mi nombre es Carlos y tengo 28 años.
+----
+
+Ejemplo con expresiones:
+
+[source, javascript]
+----
+const a = 10;
+const b = 5;
+console.log(`La suma de ${a} y ${b} es ${a + b}`); // Imprime: La suma de 10 y 5 es 15
+----
+
+== 5. Objetos
+
+Este apartado aborda las mejoras en la forma de definir y manipular objetos en ES6, haciendo el código más limpio y conciso.
+
+=== Propiedades y métodos abreviados
+
+En ES6 es posible utilizar una sintaxis abreviada al definir objetos cuando el nombre de la propiedad coincide con el de la variable. Además, se pueden definir métodos sin la palabra clave `function`.
+
+Ejemplo:
+
+[source, javascript]
+----
+const nombre = "Ana";
+const edad = 25;
+
+const usuario = {
+  nombre, // Equivalente a: nombre: nombre,
+  edad,   // Equivalente a: edad: edad,
+  saludar() {
+    return `Hola, mi nombre es ${this.nombre}`;
+  }
+};
+
+console.log(usuario.saludar()); // Imprime: Hola, mi nombre es Ana
+----
+
+=== Destructuring (asignación y parámetros)
+
+El destructuring permite extraer valores de objetos y asignarlos rápidamente a variables. Esto se aplica tanto a la asignación directa como a la desestructuración en los parámetros de funciones.
+
+Ejemplo de asignación:
+
+[source, javascript]
+----
+const usuario = { nombre: "Pedro", edad: 30, ciudad: "Madrid" };
+const { nombre, edad } = usuario;
+console.log(nombre); // Imprime: Pedro
+console.log(edad);   // Imprime: 30
+----
+
+Ejemplo en parámetros de función:
+
+[source, javascript]
+----
+function mostrarInfo({ nombre, edad }) {
+  console.log(`Nombre: ${nombre}, Edad: ${edad}`);
+}
+
+mostrarInfo(usuario); // Imprime: Nombre: Pedro, Edad: 30
+----
+
+=== Computed property names
+
+Los computed property names permiten definir nombres de propiedades de forma dinámica usando una expresión entre corchetes (`[]`).
+
+Ejemplo:
+
+[source, javascript]
+----
+const key = "color";
+const producto = {
+  [key]: "rojo",
+  [`precio_${key}`]: 100
+};
+
+console.log(producto.color);       // Imprime: rojo
+console.log(producto.precio_color); // Imprime: 100
+----
+
+== 6. Arrays
+
+Los arrays en ES6 incorporan varias mejoras y nuevas funcionalidades que facilitan su manipulación. En esta sección se abordan:
+
+- Nuevos métodos (find, findIndex, etc.)
+- Uso del spread operator en arrays
+- Destructuring en arrays
+
+=== Nuevos métodos (find, findIndex, etc.)
+
+ES6 introduce métodos que facilitan la búsqueda y manipulación de elementos en un array:
+
+* **find:** Retorna el primer elemento que cumpla con la condición especificada.
+* **findIndex:** Retorna el índice del primer elemento que cumpla con la condición; si no se encuentra, retorna -1.
+
+Ejemplo:
+
+[source, javascript]
+----
+const numeros = [5, 12, 8, 130, 44];
+
+const encontrado = numeros.find(elemento => elemento > 10);
+console.log(encontrado); // Imprime: 12
+
+const indice = numeros.findIndex(elemento => elemento > 10);
+console.log(indice); // Imprime: 1
+----
+
+Otros métodos útiles son **some**, **every** y **includes** que ayudan a evaluar condiciones sobre los elementos del array.
+
+=== Uso del spread operator en arrays
+
+El spread operator (`...`) permite expandir los elementos de un array en otro array o en argumentos de una función. Esto facilita la clonación, combinación y manipulación de arrays.
+
+Ejemplo de clonación y combinación:
+
+[source, javascript]
+----
+const primos = [2, 3, 5, 7];
+const numeros = [1, ...primos, 11];
+console.log(numeros); // Imprime: [1, 2, 3, 5, 7, 11]
+----
+
+También se puede usar para pasar un array como argumentos de una función:
+
+[source, javascript]
+----
+function sumar(a, b, c) {
+  return a + b + c;
+}
+const valores = [1, 2, 3];
+console.log(sumar(...valores)); // Imprime: 6
+----
+
+=== Destructuring en arrays
+
+El destructuring en arrays permite extraer elementos y asignarlos a variables de forma rápida y concisa.
+
+Ejemplo básico:
+
+[source, javascript]
+----
+const numerosArray = [10, 20, 30, 40, 50];
+const [primero, segundo, ...resto] = numerosArray;
+
+console.log(primero);  // Imprime: 10
+console.log(segundo);  // Imprime: 20
+console.log(resto);    // Imprime: [30, 40, 50]
+----
+
+Este formato simplifica la extracción de valores de arrays sin necesidad de acceder a cada elemento mediante índices.
+
+== 7. Clases
+
+Las clases en ES6 introducen una forma más intuitiva y similar a la programación orientada a objetos en otros lenguajes. Permiten definir “blueprints” de objetos, encapsular propiedades y métodos, y aprovechar características como la herencia.
+
+=== Declaración y uso de clases
+
+Se definen con la palabra clave `class` seguida del nombre de la clase. Dentro de la clase se pueden definir un constructor, propiedades y métodos.
+
+Ejemplo:
+
+[source, javascript]
+----
+class Persona {
+  constructor(nombre, edad) {
+    this.nombre = nombre;
+    this.edad = edad;
+  }
+  
+  saludar() {
+    return `Hola, mi nombre es ${this.nombre} y tengo ${this.edad} años.`;
+  }
+}
+
+const persona1 = new Persona("Laura", 30);
+console.log(persona1.saludar()); // Imprime: Hola, mi nombre es Laura y tengo 30 años.
+----
+
+=== Herencia y uso de super
+
+Las clases pueden heredar de otras usando la palabra clave `extends`. El método `super()` se utiliza para llamar al constructor de la clase padre y heredar sus propiedades y métodos.
+
+Ejemplo:
+
+[source, javascript]
+----
+class Empleado extends Persona {
+  constructor(nombre, edad, puesto) {
+    super(nombre, edad);
+    this.puesto = puesto;
+  }
+  
+  saludar() {
+    return `${super.saludar()} Ocupo el puesto de ${this.puesto}.`;
+  }
+}
+
+const empleado1 = new Empleado("Carlos", 28, "Desarrollador");
+console.log(empleado1.saludar()); // Imprime: Hola, mi nombre es Carlos y tengo 28 años. Ocupo el puesto de Desarrollador.
+----
+
+=== Métodos estáticos
+
+Los métodos estáticos se definen con la palabra clave `static` y se pueden llamar sin necesidad de instanciar la clase. Son útiles para funciones de utilidad o aquellas que no dependen del estado de la instancia.
+
+Ejemplo:
+
+[source, javascript]
+----
+class Matematica {
+  static sumar(a, b) {
+    return a + b;
+  }
+}
+
+console.log(Matematica.sumar(5, 7)); // Imprime: 12
+----
+
+== 8. Módulos
+
+Los módulos en ES6 permiten dividir el código en archivos separados y reutilizables, facilitando su mantenimiento y organización. Este sistema utiliza exportaciones e importaciones, y presenta diferencias notables respecto al sistema de módulos CommonJS.
+
+=== Exportaciones e importaciones
+
+En ES6, se utiliza la palabra clave `export` para definir qué partes del módulo estarán disponibles para otros archivos, y `import` para consumir dichos elementos.
+
+* **Exportación nombrada:**  
+  Se pueden exportar varias variables o funciones desde un mismo archivo.
+
+[source, javascript]
+----
+export const PI = 3.1416;
+export function sumar(a, b) {
+  return a + b;
+}
+----
+
+Para importarlas en otro módulo:
+
+[source, javascript]
+----
+import { PI, sumar } from './miModulo.js';
+console.log(PI);
+console.log(sumar(2, 3));
+----
+
+* **Exportación por defecto:**  
+  Se exporta un único valor o función por defecto.
+
+[source, javascript]
+----
+export default function restar(a, b) {
+  return a - b;
+}
+----
+
+Y se importa de la siguiente manera:
+
+[source, javascript]
+----
+import restar from './miModulo.js';
+console.log(restar(5, 3));
+----
+
+=== Diferencias con CommonJS
+
+CommonJS es el sistema de módulos tradicionalmente usado en Node.js. Algunas diferencias clave son:
+
+* **Sintaxis:**  
+  - CommonJS usa `require()` para importar y `module.exports` para exportar.  
+  - ES6 utiliza `import` y `export`.
+
+Ejemplo de CommonJS:
+
+[source, javascript]
+----
+const sumar = require('./miModulo.js');
+
+module.exports = {
+  sumar,
+};
+----
+
+* **Carga de módulos:**  
+  - CommonJS carga módulos de forma síncrona.  
+  - ES6 permite una carga estática que facilita optimizaciones en tiempo de compilación.
+
+* **Soporte nativo:**  
+  - Los módulos ES6 son compatibles de manera nativa en navegadores modernos, y en Node.js a partir de versiones recientes (configurando `"type": "module"` en package.json o usando el flag `--experimental-modules` en versiones anteriores).
+
+Estas diferencias hacen que el sistema de módulos ES6 sea más flexible y adecuado para aplicaciones modernas y de gran escala.
+
+== 9. Promesas y Operaciones Asíncronas
+
+Este apartado introduce cómo manejar operaciones asíncronas en ES6 utilizando Promesas y las mejoras que aportan, como el encadenamiento de métodos y la sintaxis async/await para facilitar la lectura y manejo de errores.
+
+=== Introducción a las Promesas
+
+Las Promesas son una forma de manejar operaciones asíncronas que representan un valor que puede estar disponible ahora, en el futuro o nunca. Permiten evitar el "callback hell" y gestionar flujos de ejecución de manera más legible.
+
+Ejemplo básico:
+
+[source, javascript]
+----
+const promesa = new Promise((resolve, reject) => {
+  let exito = true;
+  if (exito) {
+    resolve("Operación exitosa");
+  } else {
+    reject("Ocurrió un error");
+  }
+});
+
+promesa.then(resultado => {
+  console.log(resultado); // Imprime: Operación exitosa
+});
+----
+
+=== Encadenamiento, manejo de errores y finally
+
+Las Promesas se pueden encadenar usando el método `then`, que recibe el resultado de la promesa anterior y permite realizar nuevas operaciones. El manejo de errores se realiza con `catch` y, de manera opcional, se puede usar `finally` para ejecutar código sin importar el resultado de la promesa.
+
+Ejemplo de encadenamiento:
+
+[source, javascript]
+----
+const operacionAsincrona = valor => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (valor > 10) {
+      resolve(valor * 2);
+    } else {
+      reject("El valor debe ser mayor a 10");
+    }
+  }, 1000);
+});
+
+operacionAsincrona(15)
+  .then(resultado => {
+    console.log("Resultado:", resultado);
+    return operacionAsincrona(resultado);
+  })
+  .then(nuevoResultado => {
+    console.log("Nuevo Resultado:", nuevoResultado);
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  })
+  .finally(() => {
+    console.log("Operación finalizada");
+  });
+----
+
+=== Async/Await
+
+La sintaxis async/await permite escribir código asíncrono de forma similar al código síncrono. Una función declarada con `async` devuelve una promesa y se puede pausar la ejecución usando `await` hasta que la promesa se resuelva o rechace.
+
+Ejemplo:
+
+[source, javascript]
+----
+async function ejecutarOperaciones() {
+  try {
+    const resultado1 = await operacionAsincrona(20);
+    console.log("Resultado1:", resultado1);
+    const resultado2 = await operacionAsincrona(resultado1);
+    console.log("Resultado2:", resultado2);
+  } catch (error) {
+    console.error("Error en async/await:", error);
+  } finally {
+    console.log("Finalización de async/await");
+  }
+}
+
+ejecutarOperaciones();
+----
+
+== 10. Iteradores y Generadores
+
+Esta sección explora dos poderosas características de ES6 para trabajar con secuencias de datos y flujos de ejecución:
+
+- Conceptos de iteradores
+- Uso de generadores con yield
+- Ejemplos prácticos
+
+=== Conceptos de iteradores
+
+Un iterador es un objeto que define una secuencia y potencialmente un valor final. Se basa en el método `next()`, que devuelve un objeto con dos propiedades:  
+- `value`: el valor actual de la secuencia.
+- `done`: un booleano que indica si la secuencia ha finalizado.
+
+Todos los objetos iterables en ES6 (como arrays, strings, etc.) implementan el método `[Symbol.iterator]`, que devuelve un iterador.
+
+Ejemplo básico de un iterador manual:
+
+[source, javascript]
+----
+const miIterador = {
+  current: 1,
+  last: 5,
+  next() {
+    if (this.current <= this.last) {
+      return { value: this.current++, done: false };
+    } else {
+      return { done: true };
+    }
+  }
+};
+
+let resultado = miIterador.next();
+while (!resultado.done) {
+  console.log(resultado.value);
+  resultado = miIterador.next();
+}
+----
+
+=== Uso de generadores con yield
+
+Los generadores son funciones especiales que pueden pausar y reanudar su ejecución, permitiendo construir iteradores de manera sencilla. Se definen usando la sintaxis `function*` y la palabra clave `yield` para devolver valores secuencialmente.
+
+Ejemplo de un generador:
+
+[source, javascript]
+----
+function* contarHasta(max) {
+  let contador = 1;
+  while (contador <= max) {
+    yield contador;
+    contador++;
+  }
+}
+
+const generador = contarHasta(5);
+for (const numero of generador) {
+  console.log(numero); // Imprime números del 1 al 5
+}
+----
+
+=== Ejemplos prácticos
+
+Un uso práctico de iteradores y generadores es recorrer estructuras de datos o controlar flujos asíncronos de forma sencilla. Por ejemplo, se puede transformar un array en un iterador personalizado o utilizar un generador para procesar datos en "chunks".
+
+Ejemplo: Iterar sobre un array usando su iterador nativo
+
+[source, javascript]
+----
+const arreglo = ["a", "b", "c"];
+const iteradorArreglo = arreglo[Symbol.iterator]();
+
+let elemento = iteradorArreglo.next();
+while (!elemento.done) {
+  console.log(elemento.value);
+  elemento = iteradorArreglo.next();
+}
+----
+
+Con estas herramientas, ES6 facilita la creación y manipulación de secuencias de datos de manera limpia y eficiente.
+
+== 11. Nuevos Tipos de Datos
+
+ES6 introduce nuevos tipos de datos que facilitan el manejo y la organización de colecciones. A continuación, se describen Sets, Maps, WeakSet y WeakMap.
+
+=== Sets y Maps
+
+* **Set:**  
+  Es una colección de valores únicos. No permite duplicados y permite operaciones como agregar, eliminar y buscar elementos.
+
+Ejemplo de Set:
+
+[source, javascript]
+----
+const numerosSet = new Set([1, 2, 3, 3, 4]);
+numerosSet.add(5);
+console.log(numerosSet); // Imprime: Set { 1, 2, 3, 4, 5 }
+console.log(numerosSet.has(3)); // Imprime: true
+numerosSet.delete(2);
+console.log(numerosSet); // Imprime: Set { 1, 3, 4, 5 }
+----
+
+* **Map:**  
+  Es una colección de pares clave-valor en la que tanto las claves como los valores pueden ser de cualquier tipo. Ofrece métodos para establecer, eliminar y obtener valores.
+
+Ejemplo de Map:
+
+[source, javascript]
+----
+const usuarioMap = new Map();
+usuarioMap.set("nombre", "Luis");
+usuarioMap.set("edad", 30);
+console.log(usuarioMap.get("nombre")); // Imprime: Luis
+console.log(usuarioMap.size); // Imprime: 2
+usuarioMap.delete("edad");
+console.log(usuarioMap.has("edad")); // Imprime: false
+----
+
+=== WeakSet y WeakMap
+
+Estas estructuras son similares a Sets y Maps, pero sus referencias a los objetos son "débiles". Esto significa que no evitan que los objetos sean recolectados por el garbage collector.
+
+* **WeakSet:**  
+  Solo puede contener objetos y no se pueden iterar, ya que sus elementos pueden ser eliminados automáticamente si no existe otra referencia a ellos.
+
+Ejemplo de WeakSet:
+
+[source, javascript]
+----
+const obj1 = { id: 1 };
+const obj2 = { id: 2 };
+
+const weakSet = new WeakSet();
+weakSet.add(obj1);
+weakSet.add(obj2);
+console.log(weakSet.has(obj1)); // Imprime: true
+// No se puede iterar sobre weakSet
+----
+
+* **WeakMap:**  
+  Permite asociar de forma débil claves (que deben ser objetos) a valores. Si no hay otra referencia al objeto clave, éste y su correspondiente valor pueden ser recolectados.
+
+Ejemplo de WeakMap:
+
+[source, javascript]
+----
+const llave1 = { id: "clave1" };
+const weakMap = new WeakMap();
+weakMap.set(llave1, "valor asociado");
+console.log(weakMap.get(llave1)); // Imprime: valor asociado
+// weakMap no es iterable y las claves son objetos débiles
+----
+
+== 12. Mejores Prácticas y Patrones
+
+Este apartado se enfoca en cómo aprovechar al máximo las características de ES6 siguiendo buenas prácticas de codificación, aplicando patrones de diseño y utilizando herramientas que ayudan a mantener un código limpio y eficiente.
+
+=== Estilos de codificación en ES6
+
+- Utiliza `let` y `const` en lugar de `var` para evitar problemas de hoisting y alcance.
+- Emplea funciones flecha para mantener un contexto `this` coherente.
+- Usa template literals para concatenar cadenas y para escribir cadenas multilínea.
+- Aplica destructuring para asignar variables de forma concisa.
+- Mantén consistencia en la nomenclatura: camelCase para variables y funciones, y PascalCase para clases.
+- Escribe código modular utilizando la sintaxis de módulos ES6 para facilitar su mantenimiento.
+
+=== Ejemplos de refactorización
+
+Refactorizar funciones y objetos para aprovechar las características de ES6 puede simplificar el código. Por ejemplo:
+
+[source, javascript]
+----
+/* Antes de ES6 */
+function crearUsuario(nombre, edad) {
+  return {
+    nombre: nombre,
+    edad: edad,
+    saludar: function() {
+      return "Hola, " + nombre;
+    }
+  };
+}
+
+/* Con ES6 */
+function crearUsuario(nombre, edad) {
+  return {
+    nombre,
+    edad,
+    saludar() {
+      return `Hola, ${nombre}`;
+    }
+  };
+}
+
+console.log(crearUsuario("Ana", 25).saludar()); // Imprime: Hola, Ana
+----
+
+Otro ejemplo es el uso de funciones flecha para mapear arrays:
+
+[source, javascript]
+----
+/* Función tradicional */
+var numeros = [1, 2, 3];
+var cuadrados = numeros.map(function(num) {
+  return num * num;
+});
+
+/* Función con arrow function */
+const numeros = [1, 2, 3];
+const cuadrados = numeros.map(num => num * num);
+
+console.log(cuadrados); // Imprime: [1, 4, 9]
+----
+
+=== Uso de herramientas y linters
+
+Herramientas recomendadas para mantener código limpio y consistente:
+
+- **Linters:** Utiliza ESLint para detectar errores y garantizar un formato coherente.
+- **Prettier:** Un formateador de código que asegura un estilo uniforme a lo largo del proyecto.
+- **Babel:** Transpilador que permite usar características de ES6 en entornos que no lo soportan nativamente.
+- **EditorConfig:** Ayuda a mantener estilos de codificación uniformes en diferentes editores.
+
+Ejemplo de configuración de ESLint:
+
+[source, javascript]
+----
+module.exports = {
+  env: {
+    browser: true,
+    es2025: true,
+  },
+  extends: "eslint:recommended",
+  parserOptions: {
+    ecmaVersion: 2025,
+    sourceType: "module",
+  },
+  rules: {
+    "no-var": "error",
+    "prefer-const": "error",
+    "arrow-spacing": ["error", { before: true, after: true }],
+  },
+};
+----
+
+Estas prácticas y herramientas mejoran la calidad y mantenibilidad del código, facilitando la escalabilidad de proyectos modernos.
+
+== 13. Transpiladores y Compatibilidad
+
+ES6 introduce características modernas en JavaScript que no siempre son compatibles de manera nativa en todos los navegadores o entornos de ejecución. Para solucionar estos problemas se utilizan herramientas que permiten transpilar el código ES6 a versiones anteriores y aplicar polyfills para emular funciones de ES6.
+
+=== Introducción a Babel
+
+Babel es un transpilador que convierte código ES6+ en una versión de JavaScript compatible con navegadores o entornos que no soportan las características modernas. Con Babel se puede:
+
+- Convertir sintaxis moderna (como clases, arrow functions, template literals, etc.) a ES5.
+- Utilizar plugins y presets para configurar qué transformaciones se aplican.
+- Integrarse en flujos de trabajo mediante herramientas como Webpack o Gulp.
+
+Ejemplo de configuración básica (.babelrc):
+
+[source, javascript]
+----
+{
+  "presets": ["@babel/preset-env"]
+}
+----
+
+Esta configuración indica que Babel debe convertir de manera inteligente el código según las versiones de entorno especificadas.
+
+=== Polyfills y configuraciones para navegadores
+
+Además de transpilar el código, es necesario incluir polyfills para implementar funciones nativas de ES6 (como Promises, Map, Set, etc.) en navegadores que no los soporten.
+
+- **Polyfills:** Librerías que implementan funcionalidades perdidas en entornos antiguos. Un ejemplo es core-js.
+- **Configuración en Babel:** Utiliza la opción "useBuiltIns" junto con "@babel/preset-env" para incluir automáticamente los polyfills necesarios según el target.
+
+Ejemplo de configuración avanzada (.babelrc):
+
+[source, javascript]
+----
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": "> 0.25%, not dead",
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ]
+  ]
+}
+----
+
+Con esta configuración, Babel analiza el código y añade los polyfills necesarios para que funcione en navegadores con más del 0.25% de uso y que no estén obsoletos.
+
+Estas herramientas y configuraciones permiten aprovechar al máximo las ventajas de ES6, garantizando la compatibilidad en una amplia variedad de entornos y navegadores.
+
+== 14. Conclusiones
+.JavaScript ES6 ha mejorado la forma en que se escribe y organiza el código, introduciendo características que mejoran la legibilidad, mantenibilidad y eficiencia. A lo largo de este documento hemos explorado:
+* Las principales novedades de ES6, como la declaración de variables, funciones flecha, clases y módulos.
+* Cómo manejar operaciones asíncronas con Promesas y la sintaxis async/await.
+* La importancia de los iteradores y generadores para trabajar con secuencias de datos.
+* Nuevos tipos de datos como Sets y Maps que facilitan la manipulación de colecciones.
+* Mejores prácticas y patrones para escribir código limpio y eficiente.
+* Herramientas como Babel y polyfills para garantizar la compatibilidad con navegadores antiguos.
+* La importancia de seguir estilos de codificación y utilizar linters para mantener la calidad del código.
+Con la adopción de ES6, los desarrolladores pueden escribir código más moderno y eficiente, aprovechando al máximo las capacidades del lenguaje. La comunidad de JavaScript continúa evolucionando, y ES6 es un paso fundamental hacia un futuro más robusto y versátil.
+
+

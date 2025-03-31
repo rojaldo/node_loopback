@@ -1,0 +1,287 @@
+:source-highlighter: highlight.js
+= Cheatsheet de TypeScript
+:icons: font
+:toc: left
+:toclevels: 2
+
+Este cheatsheet cubre los conceptos fundamentales de TypeScript con ejemplos prácticos.
+
+== Tipos Básicos
+
+[source, typescript]
+----
+let isDone: boolean = false;
+let decimal: number = 6;
+let color: string = "blue";
+let list: number[] = [1, 2, 3];
+let tuple: [string, number] = ["hello", 10];
+----
+
+== Enums
+
+[source, typescript]
+----
+enum Direction {
+  Up = 1,
+  Down,
+  Left,
+  Right
+}
+
+let dir: Direction = Direction.Up;
+----
+
+== Any
+
+[source, typescript]
+----
+let notSure: any = 4;
+notSure = "maybe a string instead";
+notSure = false; // ok
+----
+
+== Funciones
+
+[source, typescript]
+----
+function add(x: number, y: number): number {
+  return x + y;
+}
+
+let result: number = add(5, 3);
+----
+
+== Tipos Literales y Unión
+
+[source, typescript]
+----
+type CardinalDirection = "North" | "East" | "South" | "West";
+let direction: CardinalDirection = "North";
+----
+
+== Intersección de Tipos
+
+[source, typescript]
+----
+interface Person {
+  name: string;
+}
+
+interface Employee {
+  employeeId: number;
+}
+
+type Worker = Person & Employee;
+
+let employee: Worker = {
+  name: "Alice",
+  employeeId: 1234
+};
+----
+
+== Interfaces
+
+[source, typescript]
+----
+interface Point {
+  x: number;
+  y: number;
+}
+
+let point: Point = { x: 10, y: 20 };
+----
+
+== Clases
+
+[source, typescript]
+----
+class Animal {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  move(distance: number = 0) {
+    console.log(`${this.name} moved ${distance}m.`);
+  }
+}
+
+let dog = new Animal("Dog");
+dog.move(10);
+----
+
+== Herencia y Modificadores de Acceso
+
+[source, typescript]
+----
+class Dog extends Animal {
+  bark() {
+    console.log("Woof! Woof!");
+  }
+}
+
+const dog = new Dog("Buddy");
+dog.bark();  // "Woof! Woof!"
+dog.move(10); // "Buddy moved 10m."
+----
+
+== Clases Abstractas
+
+[source, typescript]
+----
+abstract class Department {
+  constructor(public name: string) {}
+
+  printName(): void {
+    console.log("Department name: " + this.name);
+  }
+
+  abstract printMeeting(): void; // Debe ser implementado en las subclases
+}
+
+class AccountingDepartment extends Department {
+  constructor() {
+    super("Accounting");
+  }
+
+  printMeeting(): void {
+    console.log("The Accounting Department meets each Monday at 10am.");
+  }
+}
+
+let department: Department;
+department = new AccountingDepartment();
+department.printMeeting();
+----
+
+== Generics
+
+[source, typescript]
+----
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+let output = identity<string>("Hello"); // Tipo explícito
+let output2 = identity(42); // Tipo inferido
+----
+
+== Utilizando Types y Keyof
+
+[source, typescript]
+----
+type Point = { x: number; y: number };
+type P = keyof Point; // "x" | "y"
+
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+
+let point = { x: 10, y: 20 };
+let xValue = getProperty(point, "x");
+----
+
+== Type Assertions
+
+[source, typescript]
+----
+let someValue: any = "this is a string";
+let strLength: number = (someValue as string).length;
+----
+
+== Módulos
+
+[source, typescript]
+----
+export function greet(name: string): string {
+  return "Hello, " + name;
+}
+
+// En otro archivo
+import { greet } from './path-to-module';
+console.log(greet("World"));
+----
+
+== Namespaces
+
+[source, typescript]
+----
+namespace Geometry {
+  export class Square {
+    constructor(public sideLength: number) {}
+    area() {
+      return this.sideLength ** 2;
+    }
+  }
+}
+
+let square = new Geometry.Square(5);
+console.log(square.area());
+----
+
+== Decoradores
+
+[source, typescript]
+----
+function log(target: any, key: string, descriptor: PropertyDescriptor) {
+  const original = descriptor.value;
+  descriptor.value = function (...args: any[]) {
+    console.log(`Calling ${key} with ${args}`);
+    return original.apply(this, args);
+  };
+  return descriptor;
+}
+
+class Person {
+  @log
+  greet(message: string) {
+    return `Hello, ${message}`;
+  }
+}
+
+const person = new Person();
+person.greet("world"); // "Calling greet with world"
+----
+
+== Mixins
+
+[source, typescript]
+----
+type Constructor<T = {}> = new (...args: any[]) => T;
+
+function Timestamped<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    timestamp = new Date();
+  };
+}
+
+function Activatable<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    isActive = false;
+    
+    activate() {
+      this.isActive = true;
+    }
+
+    deactivate() {
+      this.isActive = false;
+    }
+  };
+}
+
+class User {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+const TimestampedUser = Timestamped(User);
+const ActiveUser = Activatable(TimestampedUser);
+
+let user = new ActiveUser("Alice");
+user.activate();
+console.log(user.isActive); // true
+console.log(user.timestamp); // fecha actual
+----

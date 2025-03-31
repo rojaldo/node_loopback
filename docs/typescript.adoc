@@ -1,0 +1,1063 @@
+:source-highlighter: highlight.js
+= Curso de TypeScript
+:icons: font
+:toc: left
+:toclevels: 2
+
+== Módulo 1: Introducción a TypeScript
+
+=== Qué es TypeScript y por qué utilizarlo
+TypeScript es un lenguaje de programación que extiende JavaScript agregando tipos estáticos. Permite detectar errores durante el desarrollo, lo que ayuda a mejorar la calidad del código y facilita el mantenimiento en proyectos grandes. 
+
+.TypeScript es útil para:
+- Evitar errores comunes de tipo en JavaScript
+- Mejorar la legibilidad y documentación del código
+- Hacer el desarrollo más productivo y seguro en aplicaciones complejas
+
+=== Instalación y configuración básica
+Para instalar TypeScript, necesitas tener Node.js y npm (Node Package Manager) instalados. La instalación global se realiza con el siguiente comando:
+[source, bash]
+----
+npm install -g typescript
+----
+Una vez instalado, puedes verificar la versión con:
+[source, bash]
+----
+tsc --version
+----
+
+=== Configuración de proyectos con `tsconfig.json`
+El archivo `tsconfig.json` permite configurar el compilador TypeScript y personalizar el comportamiento del proyecto. Puedes crear este archivo con:
+[source, bash]
+----
+tsc --init
+----
+Dentro del archivo `tsconfig.json`, puedes ajustar opciones importantes como `target`, `module`, y `strict` para adaptar la compilación a las necesidades del proyecto.
+
+=== Primeros pasos: el primer programa en TypeScript
+Crea un archivo `index.ts` y añade el siguiente código para probar TypeScript:
+[source, typescript]
+----
+function greet(name: string): string {
+    return `Hello, ${name}!`;
+}
+
+console.log(greet("TypeScript"));
+----
+Para compilarlo, usa el comando:
+[source, bash]
+----
+tsc index.ts
+----
+Esto generará un archivo `index.js` que puedes ejecutar con Node.js:
+[source, bash]
+----
+node index.js
+----
+
+=== Diferencias clave entre TypeScript y JavaScript
+1. **Tipado estático**: TypeScript permite definir tipos para variables y funciones, mientras que JavaScript usa tipado dinámico.
+2. **Interfaces y tipos**: TypeScript introduce interfaces y tipos personalizados para modelar estructuras de datos complejas.
+3. **Compilación**: TypeScript se compila a JavaScript, lo que implica un paso adicional antes de ejecutar el código.
+4. **Compatibilidad con versiones antiguas**: TypeScript permite definir el nivel de compatibilidad con ECMAScript a través de `tsconfig.json`.
+
+Con estas bases, estás listo para comenzar a explorar TypeScript y sus características avanzadas.
+
+== Módulo 2: Tipos básicos
+
+=== Tipos primitivos (`string`, `number`, `boolean`, `null`, `undefined`)
+TypeScript proporciona tipos primitivos similares a JavaScript, con la ventaja de que se pueden definir explícitamente:
+[source, typescript]
+----
+let nombre: string = "Alice";
+let edad: number = 30;
+let activo: boolean = true;
+let indefinido: undefined = undefined;
+let nulo: null = null;
+----
+Estos tipos mejoran la claridad y ayudan al compilador a detectar posibles errores antes de la ejecución.
+
+=== `any`, `unknown`, `never`: Cuándo y cómo usarlos
+- **`any`**: Usar este tipo cuando una variable puede tener cualquier valor. Sin embargo, su uso debe ser limitado, ya que desactiva el control de tipos.
+[source, typescript]
+----
+let valor: any = "Puede ser cualquier cosa";
+----
+- **`unknown`**: Similar a `any`, pero requiere una verificación de tipo antes de ser asignado a otros tipos, lo que es más seguro.
+[source, typescript]
+----
+let dato: unknown = 10;
+if (typeof dato === "number") {
+    let numero: number = dato;
+}
+----
+- **`never`**: Representa un valor que nunca ocurre, como en funciones que lanzan errores o tienen bucles infinitos.
+[source, typescript]
+----
+function error(mensaje: string): never {
+    throw new Error(mensaje);
+}
+----
+
+=== Arrays y tuplas
+- **Arrays**: Se puede definir un array especificando el tipo de elementos que contiene.
+[source, typescript]
+----
+let listaNumeros: number[] = [1, 2, 3, 4];
+----
+- **Tuplas**: Permiten definir un array con un número fijo de elementos de tipos específicos en un orden concreto.
+[source, typescript]
+----
+let persona: [string, number] = ["Alice", 30];
+----
+
+=== Tipos de enumeración (`enum`)
+Los `enum` se utilizan para definir un conjunto de valores constantes con nombres. Son útiles para variables que pueden tener un conjunto limitado de valores.
+[source, typescript]
+----
+enum Color {
+    Rojo,
+    Verde,
+    Azul
+}
+
+let colorFavorito: Color = Color.Verde;
+----
+Se pueden inicializar con valores personalizados si es necesario:
+[source, typescript]
+----
+enum Estado {
+    Activo = 1,
+    Inactivo = 0
+}
+----
+
+=== Tipos de unión y tipos literales
+- **Tipos de unión**: Permiten definir una variable que puede ser de más de un tipo.
+[source, typescript]
+----
+let id: number | string = 123;
+id = "ABC";
+----
+- **Tipos literales**: Restringen una variable a ciertos valores específicos, útiles para garantizar valores limitados.
+[source, typescript]
+----
+type EstadoUsuario = "Activo" | "Inactivo" | "Pendiente";
+let estado: EstadoUsuario = "Activo";
+----
+Los tipos de unión y literales permiten mayor control sobre los valores permitidos en una variable, mejorando la seguridad y la claridad del código.
+
+== Módulo 3: Funciones en TypeScript
+
+=== Declaración de funciones y anotaciones de tipo
+En TypeScript, puedes declarar funciones y definir el tipo de los parámetros y el tipo de retorno. Esto permite que el compilador verifique que se usen correctamente.
+[source, typescript]
+----
+function sumar(a: number, b: number): number {
+    return a + b;
+}
+----
+Aquí, `a` y `b` deben ser números, y la función debe retornar un número.
+
+=== Parámetros opcionales y valores por defecto
+Los parámetros opcionales se indican con `?`, permitiendo que se omitan al llamar la función. También puedes definir valores por defecto.
+[source, typescript]
+----
+function saludo(nombre: string, saludoFormal?: boolean): string {
+    return saludoFormal ? `Buenos días, ${nombre}` : `Hola, ${nombre}`;
+}
+
+function incrementar(base: number, incremento: number = 1): number {
+    return base + incremento;
+}
+----
+En `saludo`, el parámetro `saludoFormal` es opcional. En `incrementar`, `incremento` tiene un valor por defecto de `1`.
+
+=== Sobrecarga de funciones
+La sobrecarga permite definir múltiples firmas para una misma función, que puede comportarse de manera distinta según los tipos de los argumentos.
+[source, typescript]
+----
+function combinar(a: string, b: string): string;
+function combinar(a: number, b: number): number;
+function combinar(a: any, b: any): any {
+    return a + b;
+}
+----
+En este ejemplo, `combinar` puede sumar números o concatenar cadenas.
+
+=== Funciones como tipos y funciones anónimas
+Puedes usar tipos para definir la estructura de una función y luego asignarla a una variable o usar funciones anónimas.
+[source, typescript]
+----
+type Operacion = (x: number, y: number) => number;
+let multiplicar: Operacion = (a, b) => a * b;
+----
+Aquí, `Operacion` define el tipo de una función que toma dos números y retorna un número.
+
+=== Tipo `this` en funciones
+TypeScript permite especificar el tipo de `this` en funciones, lo que es útil en métodos que usan `this`.
+[source, typescript]
+----
+interface Usuario {
+    nombre: string;
+    mostrarNombre(this: Usuario): void;
+}
+
+let usuario: Usuario = {
+    nombre: "Alice",
+    mostrarNombre() {
+        console.log(this.nombre);
+    }
+};
+usuario.mostrarNombre();
+----
+El tipo `this: Usuario` asegura que `mostrarNombre` solo puede ser llamado en un contexto donde `this` es del tipo `Usuario`.
+
+Estas características de funciones en TypeScript mejoran la robustez del código y aseguran que los errores comunes sean detectados durante la compilación.
+
+== Módulo 4: Interfaces y tipos avanzados
+
+=== Definición y uso de interfaces
+Las interfaces en TypeScript definen la estructura de un objeto, permitiendo especificar propiedades y sus tipos. Son útiles para modelar datos y asegurar que los objetos cumplan ciertas condiciones.
+[source, typescript]
+----
+interface Persona {
+    nombre: string;
+    edad: number;
+}
+
+function mostrarPersona(persona: Persona): void {
+    console.log(`${persona.nombre} tiene ${persona.edad} años`);
+}
+
+let persona: Persona = { nombre: "Alice", edad: 30 };
+mostrarPersona(persona);
+----
+Aquí, `Persona` define que un objeto debe tener propiedades `nombre` y `edad`.
+
+=== Extensión de interfaces
+Una interfaz puede extender otra para reutilizar propiedades y métodos. Esto permite crear jerarquías de tipos y extender estructuras de datos.
+[source, typescript]
+----
+interface Trabajador extends Persona {
+    puesto: string;
+}
+
+let empleado: Trabajador = { nombre: "Bob", edad: 25, puesto: "Desarrollador" };
+----
+La interfaz `Trabajador` extiende `Persona` y añade la propiedad `puesto`.
+
+=== Tipos compuestos (`type` vs `interface`)
+TypeScript permite definir tipos personalizados mediante `type`. Aunque `type` y `interface` son similares, `type` es más flexible y permite combinaciones avanzadas.
+[source, typescript]
+----
+type ID = string | number;
+type PersonaConID = Persona & { id: ID };
+----
+Aquí, `PersonaConID` es una combinación (intersección) de `Persona` y un objeto con una propiedad `id` que puede ser `string` o `number`.
+
+| Diferencias clave |
+|-------------------|
+| `interface` permite extensión mediante `extends`, mientras que `type` no |
+| `type` permite definir uniones de tipos y combinaciones complejas |
+| `interface` es más adecuado para describir objetos o clases estructuradas |
+
+=== Clases y polimorfismo
+Las clases en TypeScript permiten la programación orientada a objetos, proporcionando encapsulamiento, herencia y polimorfismo. Las clases pueden implementar una o varias interfaces.
+[source, typescript]
+----
+interface SerVivo {
+    respirar(): void;
+}
+
+class Animal implements SerVivo {
+    respirar() {
+        console.log("Respirando...");
+    }
+}
+
+class Perro extends Animal {
+    ladrar() {
+        console.log("Guau!");
+    }
+}
+
+let mascota: Animal = new Perro();
+mascota.respirar(); // Aplica polimorfismo
+----
+`Perro` extiende `Animal` y añade un método `ladrar`. `mascota` es de tipo `Animal`, pero apunta a una instancia de `Perro`, mostrando el concepto de polimorfismo.
+
+=== Uso de `readonly` y modificadores de acceso (`public`, `private`, `protected`)
+- **`readonly`**: Las propiedades `readonly` solo pueden asignarse durante la inicialización o en el constructor, evitando modificaciones posteriores.
+[source, typescript]
+----
+class Libro {
+    readonly titulo: string;
+    constructor(titulo: string) {
+        this.titulo = titulo;
+    }
+}
+----
+- **`public`**, **`private`**, y **`protected`**: Estos modificadores controlan el acceso a las propiedades y métodos de una clase.
+    - `public`: accesible desde cualquier lugar.
+    - `private`: accesible solo dentro de la clase.
+    - `protected`: accesible en la clase y en sus subclases.
+
+[source, typescript]
+----
+class Cuenta {
+    public nombre: string;
+    private saldo: number;
+    protected limite: number;
+
+    constructor(nombre: string, saldo: number, limite: number) {
+        this.nombre = nombre;
+        this.saldo = saldo;
+        this.limite = limite;
+    }
+
+    private calcularInteres(): number {
+        return this.saldo * 0.05;
+    }
+}
+----
+Aquí, `nombre` es accesible desde cualquier parte; `saldo` solo dentro de la clase `Cuenta`; y `limite` dentro de `Cuenta` y sus subclases. Estos modificadores permiten encapsular la lógica y proteger los datos sensibles de las clases.
+
+== Módulo 5: Tipos Genéricos
+
+=== Introducción a los tipos genéricos
+Los tipos genéricos permiten que componentes como funciones, clases e interfaces trabajen con varios tipos en lugar de uno específico. Esto permite que el código sea reutilizable y flexible.
+[source, typescript]
+----
+function identidad<T>(valor: T): T {
+    return valor;
+}
+
+console.log(identidad<string>("Hola"));
+console.log(identidad<number>(123));
+----
+En este ejemplo, `T` es un tipo genérico que se define en tiempo de ejecución, permitiendo que `identidad` acepte y retorne el tipo proporcionado.
+
+=== Funciones genéricas
+Las funciones genéricas se definen con un parámetro de tipo y pueden aceptar distintos tipos en cada invocación.
+[source, typescript]
+----
+function combinar<T, U>(a: T, b: U): [T, U] {
+    return [a, b];
+}
+
+console.log(combinar<number, string>(1, "TypeScript"));
+----
+Aquí, `combinar` toma dos tipos `T` y `U` y retorna una tupla con ambos tipos.
+
+=== Clases genéricas
+Las clases genéricas permiten trabajar con propiedades de diferentes tipos en la misma estructura. Esto es útil para estructuras de datos como listas o pilas.
+[source, typescript]
+----
+class Caja<T> {
+    contenido: T;
+    constructor(contenido: T) {
+        this.contenido = contenido;
+    }
+}
+
+let cajaDeNumeros = new Caja<number>(123);
+let cajaDeTexto = new Caja<string>("texto");
+----
+`Caja` es una clase genérica que puede almacenar diferentes tipos de contenido según el tipo especificado en la instanciación.
+
+=== Interfaces genéricas y restricciones de tipo
+Las interfaces también pueden ser genéricas, lo que permite describir estructuras más versátiles. Además, es posible restringir el tipo genérico usando `extends`.
+[source, typescript]
+----
+interface Par<T> {
+    primero: T;
+    segundo: T;
+}
+
+let numeros: Par<number> = { primero: 1, segundo: 2 };
+
+interface TieneLongitud {
+    length: number;
+}
+
+function mostrarLongitud<T extends TieneLongitud>(elemento: T): number {
+    return elemento.length;
+}
+
+console.log(mostrarLongitud("cadena")); // Funciona porque `string` tiene `length`
+----
+En el ejemplo, `Par` es una interfaz genérica que requiere que `primero` y `segundo` sean del mismo tipo `T`. `mostrarLongitud` usa `extends` para restringir `T` a tipos que tengan la propiedad `length`.
+
+=== Tipos condicionales y tipos mapeados
+- **Tipos condicionales**: Permiten crear tipos condicionales que se evalúan en tiempo de compilación. Se usa la sintaxis `T extends U ? X : Y`.
+[source, typescript]
+----
+type EsNumero<T> = T extends number ? "Es un número" : "No es un número";
+type Resultado1 = EsNumero<number>; // "Es un número"
+type Resultado2 = EsNumero<string>; // "No es un número"
+----
+- **Tipos mapeados**: Permiten transformar propiedades de un tipo existente en otro tipo, aplicando modificadores de tipo.
+[source, typescript]
+----
+type SoloLectura<T> = {
+    readonly [P in keyof T]: T[P];
+};
+
+interface Usuario {
+    nombre: string;
+    edad: number;
+}
+
+type UsuarioSoloLectura = SoloLectura<Usuario>;
+----
+En este ejemplo, `SoloLectura` convierte todas las propiedades de `Usuario` en propiedades de solo lectura.
+
+== Módulo 6: Módulos y espacios de nombres
+
+=== Importación y exportación de módulos
+En TypeScript, los módulos ayudan a organizar el código en archivos separados y encapsulan funcionalidades. Para compartir y reutilizar código entre archivos, se usa `export` para declarar lo que se desea exponer y `import` para acceder a esos elementos en otros archivos.
+
+[source, typescript]
+----
+export function saludar(nombre: string): string {
+    return `Hola, ${nombre}`;
+}
+----
+Este código exporta la función `saludar`, lo que permite importarla en otro archivo.
+
+=== Uso de `import` y `export` en TypeScript
+Para usar funciones, clases o variables de otros módulos, se usa `import`. El siguiente ejemplo muestra cómo importar `saludar` desde otro archivo:
+[source, typescript]
+----
+import { saludar } from './miModulo';
+
+console.log(saludar("TypeScript"));
+----
+TypeScript soporta tanto la exportación por defecto (`export default`) como exportaciones nombradas (`export`). La exportación por defecto permite exportar un solo elemento principal en un módulo, que puede ser importado sin llaves `{ }` en el archivo receptor.
+
+[source, typescript]
+----
+export default function despedida(nombre: string): string {
+    return `Adiós, ${nombre}`;
+}
+
+// Al importar:
+import despedida from './miModulo';
+console.log(despedida("TypeScript"));
+----
+
+=== Configuración de módulos en `tsconfig.json`
+El archivo `tsconfig.json` permite configurar cómo TypeScript maneja los módulos en un proyecto. Las opciones comunes para los módulos incluyen:
+- `"module": "commonjs"`: para entornos de Node.js.
+- `"module": "esnext"`: para aprovechar los módulos nativos en ES6 y navegadores modernos.
+- `"outDir"`: define el directorio donde se guardarán los archivos compilados.
+  
+Ejemplo básico de configuración de módulos en `tsconfig.json`:
+[source, json]
+----
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": "./dist"
+    }
+}
+----
+
+=== Espacios de nombres (namespaces)
+Los espacios de nombres (namespaces) son una forma de agrupar código en TypeScript dentro de un mismo archivo o a través de varios archivos. A diferencia de los módulos, los namespaces están pensados para evitar conflictos de nombres en proyectos grandes. Se usan especialmente en aplicaciones que no se dividen en módulos y requieren agrupación lógica de código.
+
+[source, typescript]
+----
+namespace MiNamespace {
+    export function saludar(nombre: string): string {
+        return `Hola desde el namespace, ${nombre}`;
+    }
+}
+
+console.log(MiNamespace.saludar("TypeScript"));
+----
+Usando `export` dentro del namespace, podemos exponer funciones, clases o variables para acceder a ellas fuera del namespace.
+
+=== Comparación entre módulos y espacios de nombres
+| Característica               | Módulos                              | Espacios de Nombres                   |
+|------------------------------|--------------------------------------|---------------------------------------|
+| División de código           | Se basa en archivos                  | Organización dentro de un mismo archivo o varios archivos |
+| Uso                          | Import/export entre archivos         | Agrupación lógica sin separación física |
+| Compilación                  | Se compilan a archivos separados     | Se mantienen en el mismo archivo en la mayoría de los casos |
+| Escenario ideal              | Proyectos modernos y basados en ECMAScript | Proyectos legacy o sin estructura de módulos |
+
+
+En TypeScript, los módulos son recomendados para la mayoría de los proyectos modernos, especialmente aquellos que utilizan bundlers (como Webpack o esbuild) y módulos ES6. Los namespaces se usan menos en entornos modernos, pero son útiles en ciertos contextos que no requieren la estructura de módulos.
+
+== Módulo 7: Manejo de errores
+
+Este módulo aborda el tratamiento adecuado de errores en TypeScript, aprovechando el tipado estático para mejorar la detección y manejo de excepciones durante el desarrollo.
+
+=== Tipado de errores y `Error` en TypeScript
+
+TypeScript permite utilizar la clase nativa `Error` para representar errores, lo que facilita la identificación y manejo de excepciones.  
+* Permite definir propiedades como `name` y `message` para dar contexto al error.  
+* Se recomienda utilizar tipos específicos para validar el contenido del error y así mejorar la robustez del código.
+
+Por ejemplo:
+
+[source, typescript]
+----
+try {
+  // Código que puede generar un error
+  throw new Error("Ocurrió un error");
+} catch (error) {
+  // TypeScript asume que error es de tipo unknown,
+  // por lo que se recomienda hacer una verificación del tipo:
+  if (error instanceof Error) {
+    console.error(error.name, error.message);
+  }
+}
+----
+
+=== `try`, `catch`, `finally` y su uso en TypeScript
+
+El bloque `try` se utiliza para encapsular secciones de código que pueden lanzar excepciones.  
+* `catch` captura cualquier error que se origine en el bloque `try` y permite manejarlo de forma adecuada.  
+* `finally` se ejecuta siempre, independientemente de que se haya producido o no una excepción, ideal para liberar recursos o realizar tareas de limpieza.
+
+Ejemplo básico:
+
+[source, typescript]
+----
+try {
+  // Código que puede lanzar una excepción
+  const result = realizarOperacion();
+  console.log(result);
+} catch (error) {
+  if (error instanceof Error) {
+    console.error("Error capturado:", error.message);
+  }
+} finally {
+  console.log("Ejecución finalizada, recursos liberados.");
+}
+----
+
+=== Creación de tipos personalizados de errores
+
+Para un manejo más específico, puedes crear clases de error personalizadas que amplíen la funcionalidad del objeto `Error`.  
+* Permiten incluir propiedades adicionales y metodologías propias para el error.
+* Facilitan la clasificación de errores según el contexto o funcionalidad.
+
+Ejemplo de un error personalizado:
+
+[source, typescript]
+----
+class ValidationError extends Error {
+  public detalles: string;
+  
+  constructor(message: string, detalles: string) {
+    super(message);
+    this.name = "ValidationError";
+    this.detalles = detalles;
+  }
+}
+
+try {
+  throw new ValidationError("Entrada inválida", "El campo 'nombre' es obligatorio.");
+} catch (error) {
+  if (error instanceof ValidationError) {
+    console.error(error.name, error.message, error.detalles);
+  }
+}
+----
+
+=== Manejo de errores en funciones asíncronas
+
+Las funciones asíncronas pueden lanzar errores que deben manejarse utilizando `try`/`catch` dentro de bloques `async/await`.  
+* Asegura que las excepciones se capturen adecuadamente en flujos de lógica asíncrona.
+* Es posible combinar esta técnica con tipos personalizados para un mejor control.
+
+Ejemplo en una función asíncrona:
+
+[source, typescript]
+----
+async function obtenerDatos(url: string): Promise<any> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Fallo al obtener los datos:", error.message);
+      throw error; // Propagar el error para manejo superior
+    }
+  }
+}
+
+(async () => {
+  try {
+    const datos = await obtenerDatos("https://api.ejemplo.com/data");
+    console.log(datos);
+  } catch (error) {
+    console.error("Error en la función principal:", error);
+  }
+})();
+----
+
+== Módulo 8: Integración con JavaScript y Node.js
+
+Este módulo explora cómo aprovechar TypeScript en proyectos que también utilizan JavaScript y Node.js, facilitando la coexistencia de ambos lenguajes y aprovechando herramientas modernas para el desarrollo y la compilación.
+
+=== Uso de bibliotecas de JavaScript en TypeScript
+
+TypeScript es totalmente compatible con bibliotecas escritas en JavaScript. Para aprovecharlas en tu proyecto:
+* Instala la biblioteca mediante npm.
+* Si la biblioteca no incluye sus propios tipos, utiliza paquetes de definiciones de tipo (Disponibles en DefinitelyTyped, instalados vía `@types`).
+* Importa y utiliza la biblioteca de forma nativa en tus archivos `.ts`.
+
+Por ejemplo:
+
+[source, typescript]
+----
+import * as _ from 'lodash';
+
+// Uso de una función de Lodash
+const resultado = _.chunk([1, 2, 3, 4, 5, 6], 2);
+console.log(resultado); // [[1,2],[3,4],[5,6]]
+----
+
+=== Archivos de declaración de tipos (`.d.ts`)
+
+Los archivos de declaración de tipos permiten a TypeScript comprender el “shape” (estructura) de bibliotecas de JavaScript.
+* Se utilizan para proporcionar información de tipado sin necesidad de conocer la implementación.
+* Pueden ser escritos manualmente o descargados de DefinitelyTyped.
+* Se incluyen automáticamente si están en el directorio adecuado o se refieren en el `tsconfig.json`.
+
+Por ejemplo, para una biblioteca sin tipos, puedes crear un archivo `miBiblioteca.d.ts`:
+
+[source, typescript]
+----
+declare module 'miBiblioteca' {
+  export function funcionImportante(param: string): number;
+}
+----
+
+=== Configuración de TypeScript en proyectos Node.js
+
+Para utilizar TypeScript en un entorno Node.js, configura un archivo `tsconfig.json` en la raíz del proyecto. Algunas configuraciones clave incluyen:
+* `"module": "commonjs"` para compatibilidad con Node.js.
+* `"target": "es6"` o superior para funciones modernas de JavaScript.
+* `"outDir"` para definir el directorio de salida de los archivos compilados.
+
+Un ejemplo básico de `tsconfig.json`:
+
+[source, json]
+----
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
+----
+
+Luego, usa el comando `tsc` para compilar tu proyecto y ejecutar los archivos resultantes con Node.js.
+
+=== Integración de TypeScript con herramientas como Babel y Webpack
+
+Para proyectos más complejos, la integración de TypeScript con herramientas como Babel y Webpack permite optimizar la compilación y aprovechar características adicionales:
+* **Babel:** Se puede configurar para transpilar TypeScript a JavaScript, permitiendo usar plugins y presets modernos.
+* **Webpack:** Integra el proceso de compilación de TypeScript y empaqueta tus módulos para ambientes de producción o desarrollo.
+
+Un ejemplo de configuración con Webpack incluye el uso de `ts-loader` o `babel-loader`:
+
+[source, javascript]
+----
+module.exports = {
+  entry: './src/index.ts',
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      }
+    ]
+  },
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
+  output: {
+    filename: 'bundle.js',
+    path: __dirname + '/dist'
+  }
+};
+----
+
+Esta integración permite un flujo de trabajo optimizado y soporta características avanzadas como hot module replacement.
+
+=== Ejemplo de proyecto en Node.js con TypeScript
+
+Un proyecto típico en Node.js con TypeScript puede incluir:
+* Una estructura organizada en carpetas, por ejemplo, `src` para el código fuente y `dist` para los archivos compilados.
+* Uso de módulos modernos y herramientas de bundling para producción.
+* Automatización de tareas con scripts en `package.json`.
+
+Estructura de ejemplo:
+
+[source, text]
+----
+/mi-proyecto
+  /src
+    index.ts
+    utilidades.ts
+  /dist
+  package.json
+  tsconfig.json
+----
+
+Contenido de `index.ts`:
+
+[source, typescript]
+----
+import { saludar } from './utilidades';
+
+console.log(saludar("TypeScript con Node.js"));
+----
+
+Contenido de `utilidades.ts`:
+
+[source, typescript]
+----
+export function saludar(nombre: string): string {
+  return `Hola, ${nombre}!`;
+}
+----
+
+Con esta configuración, puedes compilar el proyecto usando `tsc` y ejecutar el resultado en Node.js con:
+
+[source, shell]
+----
+node dist/index.js
+----
+
+Este ejemplo demuestra cómo integrar TypeScript en un entorno Node.js, utilizando técnicas modernas de configuración y empaquetado para crear aplicaciones robustas y escalables.
+
+== Módulo 9: Desarrollo y pruebas en TypeScript
+
+Este módulo se centra en cómo preparar y ejecutar pruebas en proyectos TypeScript, demostrando estrategias para validar la funcionalidad tanto en pruebas unitarias como de integración y E2E, y finalizando con la creación de un proyecto completo y su despliegue en producción.
+
+=== Configuración de entornos de prueba para TypeScript
+
+Antes de comenzar a escribir pruebas, es fundamental configurar el entorno de pruebas. Esto incluye:
+* Configuración de un archivo de pruebas (por ejemplo, `jest.config.js` si se usa Jest).
+* Ajustes en el `tsconfig.json` para incluir los archivos de pruebas.
+* Instalación de dependencias como `ts-jest` y `@types/jest` para que TypeScript entienda Jest.
+
+Un ejemplo básico de configuración en Jest es:
+
+[source, javascript]
+----
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testMatch: ['**/tests/**/*.test.ts'],
+};
+----
+
+=== Pruebas unitarias con Jest y TypeScript
+
+Las pruebas unitarias en TypeScript se pueden escribir usando Jest y ts-jest. Esto permite aprovechar el tipado en los tests y detectar errores en tiempo de compilación.
+
+Ejemplo de un test unitario para una función sencilla:
+
+[source, typescript]
+----
+import { sumar } from '../src/utilidades';
+
+describe('Función sumar', () => {
+  it('debería retornar la suma correcta de dos números', () => {
+    const resultado = sumar(2, 3);
+    expect(resultado).toBe(5);
+  });
+});
+----
+
+Asegúrate de contar con un script en `package.json` para correr las pruebas:
+
+[source, json]
+----
+{
+  "scripts": {
+    "test": "jest"
+  }
+}
+----
+
+=== Pruebas de integración y pruebas E2E
+
+Las pruebas de integración validan la interacción entre diferentes módulos y componentes, mientras que las pruebas E2E simulan el flujo completo de la aplicación. En Node.js, se pueden utilizar herramientas como Supertest para realizar peticiones HTTP en tests de integración.
+
+Ejemplo de prueba de integración:
+
+[source, typescript]
+----
+import request from 'supertest';
+import { app } from '../src/app';
+
+describe('Endpoint /usuario', () => {
+  it('debería responder con un estatus 200 y una lista de usuarios', async () => {
+    const response = await request(app).get('/usuario');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBeTruthy();
+  });
+});
+----
+
+Las pruebas E2E pueden integrarse en el entorno de CI para simular interacciones reales, validando el comportamiento completo de la aplicación.
+
+=== Creación de un proyecto completo en TypeScript
+
+Un proyecto completo en TypeScript debe incluir:
+* Una estructura de carpetas organizada (por ejemplo, `src` para el código fuente y `tests` para pruebas).
+* Un archivo `tsconfig.json` correctamente configurado.
+* Scripts de compilación y pruebas en el `package.json`.
+
+Estructura de ejemplo:
+
+[source, text]
+----
+/mi-proyecto
+  /src
+    app.ts
+    utilidades.ts
+  /tests
+    app.test.ts
+    utilidades.test.ts
+  package.json
+  tsconfig.json
+----
+
+El archivo `tsconfig.json` podría verse así:
+
+[source, json]
+----
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src", "tests"]
+}
+----
+
+Con esta configuración, puedes compilar y ejecutar tus pruebas utilizando comandos definidos en `package.json`.
+
+=== Despliegue y configuración para producción
+
+Para desplegar un proyecto TypeScript en producción, sigue estos pasos:
+* Compila el proyecto usando el comando `tsc`, generando archivos JavaScript en el directorio configurado (por ejemplo, `dist`).
+* Configura un script de inicio en `package.json` para ejecutar el código compilado:
+
+[source, json]
+----
+{
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js"
+  }
+}
+----
+
+* Opcionalmente, integra herramientas de bundling (como Webpack o Babel) para optimizar el código.
+* Configura variables de entorno y archivos de configuración según el entorno (producción, desarrollo, etc.).
+
+Este enfoque optimiza el flujo de trabajo y prepara tu aplicación para entornos de producción, asegurando rendimiento y estabilidad.
+
+== Módulo 10: Aspectos avanzados y mejores prácticas
+
+=== Decoradores en TypeScript
+
+Los decoradores permiten anotar y modificar clases y miembros de clases (métodos, propiedades, parámetros) de forma declarativa. Son útiles para implementar patrones de diseño, inyección de dependencias y logging, entre otros.  
+* Se activan configurando `"experimentalDecorators": true` en `tsconfig.json`.
+* Pueden ser aplicados a clases, métodos y propiedades.
+
+Ejemplo de un decorador de clase:
+[source, typescript]
+----
+function logConstructor(constructor: Function) {
+  console.log(`Clase ${constructor.name} ha sido creada.`);
+}
+
+@logConstructor
+class MiClase {
+  constructor() {
+    // Inicialización
+  }
+}
+----
+
+Ahora, se añaden ejemplos para otros tipos de decoradores:
+
+==== Decorador de método
+Se usa para modificar el comportamiento de un método.
+[source, typescript]
+----
+function logMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args: any[]) {
+    console.log(`Método ${propertyKey} invocado con argumentos:`, args);
+    const result = originalMethod.apply(this, args);
+    console.log(`Retorno del método:`, result);
+    return result;
+  };
+}
+
+class Ejemplo {
+  @logMethod
+  sumar(a: number, b: number): number {
+    return a + b;
+  }
+}
+----
+
+==== Decorador de propiedad
+Se utiliza para interceptar el acceso a una propiedad.
+[source, typescript]
+----
+function override(defaultValue: any) {
+  return function (target: any, propertyKey: string) {
+    let value = defaultValue;
+    const getter = () => {
+      console.log(`Obteniendo valor de ${propertyKey}:`, value);
+      return value;
+    };
+    const setter = (newVal: any) => {
+      console.log(`Estableciendo valor en ${propertyKey}:`, newVal);
+      value = newVal;
+    };
+    Object.defineProperty(target, propertyKey, {
+      get: getter,
+      set: setter,
+      enumerable: true,
+      configurable: true,
+    });
+  };
+}
+
+class Config {
+  @override("valor por defecto")
+  configProp: string;
+}
+----
+
+=== Manejo avanzado de tipos (`infer`, `typeof`, `keyof`, `in`)
+
+TypeScript ofrece operadores para extraer o manipular tipos de manera avanzada:
+* **`typeof`**: Extrae el tipo de una variable o expresión.
+* **`keyof`**: Obtiene una unión de las claves de un objeto.
+* **`in`**: Verifica si una propiedad existe en un tipo.
+* **`infer`**: Permite inferir tipos dentro de una expresión condicional.
+* **`extends`**: Se usa en tipos condicionales para restringir el tipo.
+
+.Ejemplo que combina `keyof` y `typeof`:
+[source, typescript]
+----
+const usuario = {
+  nombre: "Alice",
+  edad: 30
+};
+
+type UsuarioKeys = keyof typeof usuario; // "nombre" | "edad"
+----
+
+.Ejemplo de uso de `in`:
+[source, typescript]
+----
+interface Usuario {
+  nombre: string;
+  edad: number;
+}
+function esUsuario(obj: any): obj is Usuario {
+  return "nombre" in obj && "edad" in obj;
+}
+const obj = { nombre: "Alice", edad: 30 };
+console.log(esUsuario(obj)); // true
+----
+
+.Ejemplo de uso de `infer`:
+[source, typescript]
+----
+type TipoInferido<T> = T extends (infer U)[] ? U : never;
+type ArrayDeNumeros = TipoInferido<number[]>; // number
+type ArrayDeCadenas = TipoInferido<string[]>; // string
+type NoArray = TipoInferido<number>; // never
+----
+
+.Ejemplo de uso de `extends`:
+[source, typescript]
+----
+type TipoCondicional<T> = T extends string ? "Es una cadena" : "No es una cadena";
+type Resultado1 = TipoCondicional<string>; // "Es una cadena"
+type Resultado2 = TipoCondicional<number>; // "No es una cadena"
+----
+
+=== Operadores de tipo (`as`, `!`, `?`)
+
+Estos operadores permiten una mayor precisión en la manipulación de tipos:
+* **`as`**: Realiza una aserción de tipo.
+* **`!`**: Avisa al compilador que una expresión no es nula o indefinida.
+* **`?`**: Indica que una propiedad o parámetro es opcional.
+
+Ejemplo de uso combinado:
+
+[source, typescript]
+----
+function obtenerLongitud(texto?: string): number {
+  // Utiliza el operador '!' para afirmar que texto no es nulo en este punto
+  return texto!.length;
+}
+
+const valor = "TypeScript" as string; // Aserción explícita de tipo
+console.log(valor);
+----
+
+=== Creación de bibliotecas y herramientas en TypeScript
+
+TypeScript facilita la creación de bibliotecas reutilizables y herramientas gracias a su tipado estático y modularidad:
+* Se pueden definir módulos, interfaces y tipos exportables para reutilización.
+* La generación de definiciones de tipo (`.d.ts`) permite que otros proyectos (incluso en JavaScript) puedan integrar la biblioteca con tipado.
+* Utiliza herramientas como Rollup o Webpack para empaquetar la biblioteca y publicar en npm.
+
+Ejemplo básico de exportación en una biblioteca:
+
+[source, typescript]
+----
+export interface Configuracion {
+  puerto: number;
+  entorno: "desarrollo" | "produccion";
+}
+
+export function iniciarServidor(config: Configuracion): void {
+  console.log(`Servidor iniciado en puerto ${config.puerto} en modo ${config.entorno}`);
+}
+----
+
+=== Buenas prácticas y patrones comunes en TypeScript
+
+Adoptar buenas prácticas y patrones ayuda a mantener la calidad y escalabilidad del código:
+* **Tipado estricto**: Activa `"strict": true` en `tsconfig.json` para aprovechar al máximo el tipado.
+* **Modularidad**: Organiza el código en módulos y utiliza import/export para una estructura clara.
+* **Inmutabilidad**: Usa `readonly` y evita modificar directamente objetos o arrays.
+* **Patrones de diseño**: Aplica patrones como Singleton, Factory, Observer y Dependency Injection para soluciones reutilizables y testeables.
+* **Comentarios y documentación**: Usa JSDoc y genera documentación para facilitar el mantenimiento.
+* **Integración continua**: Configura herramientas de análisis estático de código y pruebas para detectar errores antes de la implementación en producción.
+
+Adoptar estas estrategias y herramientas permitirá aprovechar al máximo el potencial de TypeScript para desarrollar aplicaciones escalables, robustas y fáciles de mantener.
+

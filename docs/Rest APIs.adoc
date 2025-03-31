@@ -1,0 +1,267 @@
+:source-highlighter: highlight.js
+= APIs Rest
+:icons: font
+:toc: left
+:toclevels: 2
+
+== 1. Introducción a las APIs Rest
+
+=== ¿Qué es una API Rest?
+Una API Rest (Representational State Transfer) es un conjunto de convenciones y protocolos que permite la comunicación entre sistemas a través de peticiones HTTP. Las APIs Rest se basan en el intercambio de recursos identificados por URL y utilizan métodos estandarizados (GET, POST, PUT, DELETE, etc.) para operar sobre ellos. Esto facilita la interoperabilidad entre diferentes plataformas y lenguajes de programación.
+
+=== Principios y arquitectura REST
+La arquitectura REST se funda en varios principios clave:
+* **Cliente-Servidor:** Separa la interfaz de usuario (cliente) de la lógica de la aplicación (servidor), permitiendo una evolución independiente de ambos.
+* **Sin estado (Stateless):** Cada petición del cliente debe contener la información necesaria para que el servidor la procese. El servidor no almacena estado entre peticiones.
+* **Cacheable:** Las respuestas deben ser definidas como cacheables o no, permitiendo mejorar el rendimiento y reducir la carga en el servidor.
+* **Interfaz uniforme:** Se utiliza un conjunto estandarizado de operaciones (mediante métodos HTTP) que simplifica la interacción entre cliente y servidor.
+* **Sistema en capas:** La arquitectura puede estar organizada en capas, permitiendo la implementación de intermediarios como proxies y balanceadores de carga para mejorar la escalabilidad y seguridad.
+
+=== Ventajas y desventajas de utilizar APIs Rest
+* **Ventajas:**
+  - **Simplicidad:** Utiliza los métodos y estándares del protocolo HTTP, lo que facilita su implementación y comprensión.
+  - **Escalabilidad:** La naturaleza sin estado de las peticiones permite distribuir la carga de manera eficiente.
+  - **Flexibilidad:** Permite la interacción entre diversos sistemas y lenguajes sin requerir formatos complejos.
+  - **Amplio soporte:** Está integrado y soportado por numerosas herramientas, frameworks y bibliotecas en la comunidad de desarrollo.
+* **Desventajas:**
+  - **Limitaciones de HTTP:** Se depende de las restricciones y características inherentes al protocolo HTTP, lo que puede introducir limitaciones en ciertos escenarios.
+  - **Seguridad:** Si bien se pueden aplicar mecanismos de autenticación y autorización, la exposición de endpoints requiere un cuidado especial para evitar vulnerabilidades.
+  - **Operaciones complejas:** Para transacciones o acciones que requieran mantener un estado complejo, puede no ser la mejor solución comparado con otros enfoques como GraphQL o RPC.
+
+== 2. HTTP y el Protocolo REST
+
+=== Métodos HTTP
+HTTP define varios métodos para interactuar con los recursos del servidor:
+* **GET:** Recupera información de un recurso sin modificarlo.
+* **POST:** Envía datos al servidor para crear un nuevo recurso.
+* **PUT:** Reemplaza completamente un recurso existente con los datos enviados.
+* **DELETE:** Elimina un recurso específico.
+* **PATCH:** Actualiza parcialmente un recurso con los cambios proporcionados.
+* **OPTIONS:** Solicita información sobre las opciones de comunicación que soporta el recurso.
+* **HEAD:** Similar a GET, pero solo recupera los headers de la respuesta, sin el cuerpo.
+
+=== Códigos de estado HTTP
+Los códigos de estado son números que indican el resultado de una petición:
+* **2xx (Éxito):** La petición se realizó correctamente.
+  - *200 OK:* Respuesta exitosa.
+  - *201 Created:* Recurso creado satisfactoriamente.
+* **3xx (Redirección):** Se requiere acción adicional para completar la petición.
+  - *301 Moved Permanently:* El recurso se ha movido de forma permanente a otra URL.
+  - *302 Found:* El recurso se encuentra temporalmente en otra URL.
+* **4xx (Errores del cliente):** La petición contiene errores o está mal formulada.
+  - *400 Bad Request:* La petición es inválida o malformada.
+  - *401 Unauthorized:* Se requiere autenticación.
+  - *404 Not Found:* El recurso solicitado no existe.
+* **5xx (Errores del servidor):** Problemas internos que impiden cumplir la petición.
+  - *500 Internal Server Error:* Error en el servidor al procesar la petición.
+  - *503 Service Unavailable:* El servidor no está disponible para atender la petición.
+
+=== Headers y cuerpo de la petición
+* **Headers:** Son campos de metadatos que acompañan cada petición y respuesta HTTP.  
+  Ejemplos:  
+  - `Content-Type`: Indica el formato del contenido (por ejemplo, application/json).  
+  - `Authorization`: Se utiliza para enviar credenciales de autenticación.  
+  Estos encabezados ayudan a definir la naturaleza de la información intercambiada y a manejar la seguridad, la cacheabilidad y otros aspectos de la comunicación.
+
+* **Cuerpo de la petición:** Es la parte de la petición HTTP que contiene los datos enviados al servidor.  
+  - En las peticiones POST, PUT y PATCH se utiliza para transportar la información que se quiere crear o actualizar.  
+  - El formato del cuerpo varía según la aplicación, siendo JSON, XML o formularios URL-encoded los formatos más comunes.
+
+== 3. Diseño de APIs Rest
+
+=== Recursos y Endpoints
+Los recursos representan entidades o colecciones de datos que se exponen a través de la API. Cada recurso debe tener un identificador único definido en la URL, y los endpoints deben seguir convenciones claras, por ejemplo:
+* Utilizar sustantivos en plural para representar colecciones (por ejemplo, "/usuarios").
+* Emplear rutas anidadas para establecer relaciones (por ejemplo, "/usuarios/{id}/posts").
+* Mantener consistencia en la nomenclatura y estructura de las rutas para facilitar la comprensión y mantenimiento.
+
+=== Versionado de la API
+El versionado es esencial para permitir la evolución de la API sin romper el contrato con los clientes. Algunas estrategias comunes de versionado son:
+* Incluir la versión en la URL (por ejemplo, "/v1/usuarios").
+* Utilizar headers para especificar la versión, mediante valores en el header "Accept" (por ejemplo, "Accept: application/vnd.miapi.v1+json").
+Un manejo adecuado del versionado permite introducir mejoras y cambios incrementales sin afectar a los consumidores existentes.
+
+=== HATEOAS y Enlace de Recursos
+HATEOAS (Hypermedia As The Engine Of Application State) es un principio REST que agrega hipermedios a las respuestas de la API. Esto permite a los clientes descubrir y navegar por la API dinámicamente. Por ejemplo:
+* Incluir enlaces (links) en las respuestas que dirijan a otras acciones o recursos relacionados.
+* Facilitar que los clientes realicen transiciones de estado sin conocer previamente toda la estructura de la API.
+Esta práctica mejora la auto-descubribilidad de la API y simplifica su uso e integración.
+
+=== Seguridad: Autenticación y Autorización
+La seguridad en una API es crucial para proteger los datos y controlar el acceso. Los aspectos principales incluyen:
+* **Autenticación:** Verificar la identidad de los clientes que interactúan con la API. Se pueden utilizar métodos como tokens JWT, OAuth, o claves de API.
+* **Autorización:** Determinar qué recursos o acciones están permitidos para un usuario autenticado, implementando roles y permisos.
+Además, es fundamental proteger las comunicaciones utilizando SSL/TLS, gestionar de forma segura las credenciales y monitorizar los accesos para prevenir accesos no autorizados.
+
+== 4. Implementación de una API Rest
+
+=== Herramientas y frameworks para implementación en Node.js
+Para desarrollar una API Rest con Node.js se pueden utilizar diversas herramientas y frameworks que facilitan la creación de servidores robustos y escalables. Entre los más populares se encuentran:
+* **Express:** Framework minimalista y flexible, ideal para el desarrollo rápido de APIs.
+* **Koa:** Ofrece un enfoque moderno basado en async/await, facilitando la gestión de errores.
+* **Hapi:** Proporciona un conjunto completo de funcionalidades listas para usarse en aplicaciones complejas.
+* **NestJS:** Framework progresivo que utiliza TypeScript y que sigue un patrón modular basado en controladores e inyección de dependencias.
+
+=== Arquitectura basada en controladores y rutas
+Una arquitectura organizada en controladores y rutas permite separar la lógica de negocio de la gestión de las peticiones HTTP, lo cual favorece:
+* **Mantenibilidad:** Organización del código en módulos y controladores claros.
+* **Escalabilidad:** Facilidad para agregar nuevas rutas y funcionalidades sin impactar el sistema global.
+* **Reusabilidad:** Controladores que encapsulan la lógica reutilizable para diferentes endpoints.
+Un ejemplo común es definir un archivo de rutas que delegue cada acción al controlador correspondiente, asegurando una clara separación de responsabilidades.
+
+=== Conexión a bases de datos y modelos de datos
+La persistencia de datos es esencial en el desarrollo de una API. Para ello, se pueden emplear:
+* **ORMs/ODMs:** Herramientas como Sequelize o TypeORM para bases de datos relacionales, y Mongoose para MongoDB, que facilitan el mapeo entre los modelos de datos y la base de datos.
+* **Definición de modelos:** Es vital establecer esquemas que representen los recursos de la API, asegurando la validación y consistencia de la información.
+* **Gestión de conexiones:** Configurar la conexión a la base de datos con técnicas de manejo de errores y reconexión automática, lo cual es crucial para la estabilidad y escalabilidad del servicio.
+
+== 5. Documentación de APIs
+
+=== Uso de Swagger/OpenAPI (Estructura YAML)
+
+La especificación OpenAPI utiliza archivos YAML para describir la API de manera estructurada. A continuación se detalla la estructura básica, las secciones principales, los tipos de datos y algunas herramientas útiles.
+
+==== Ejemplo de archivo YAML OpenAPI
+[source,yaml]
+----
+openapi: "3.0.1"           # Versión de la especificación OpenAPI
+info:
+  title: "Nombre de la API"
+  version: "1.0.0"         # Versión de la API
+  description: "Descripción detallada de la API."
+servers:
+  - url: "https://api.ejemplo.com/v1"   # URL base del servidor
+paths:
+  /usuarios:
+    get:
+      summary: "Obtener lista de usuarios"
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: "Número de página para la paginación"
+      responses:
+        '200':
+          description: "Operación exitosa"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Usuario"
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        email:
+          type: string
+      required:
+        - id
+        - nombre
+        - email
+----
+  
+==== Secciones principales
+
+* **openapi:**  
+  Define la versión de la especificación OpenAPI utilizada.
+
+* **info:**  
+  Contiene metadatos sobre la API, incluyendo título, versión y una descripción.
+
+* **servers:**  
+  Lista las URL base de los servidores donde se encuentra la API. Se pueden definir entornos de producción, desarrollo, etc.
+
+* **paths:**  
+  Enumera los endpoints de la API, junto con las operaciones HTTP disponibles en cada uno (GET, POST, PUT, DELETE, etc.).  
+  Cada operación puede incluir:
+  - Un resumen y descripción.
+  - Parámetros de entrada (query, path, headers o cookies).
+  - Las respuestas esperadas, con especificación de códigos HTTP y esquemas de datos (definidos en components).
+
+* **components:**  
+  Permite definir elementos reutilizables como:
+  - **Schemas:** Modelos de datos que se usan en peticiones y respuestas.
+  - **Responses:** Respuestas comunes.
+  - **Parameters:** Parámetros reutilizables.
+  - **Security Schemes:** Mecanismos de seguridad aplicables a la API.
+
+==== Tipos de datos en OpenAPI
+
+Dentro de los esquemas, OpenAPI soporta los siguientes tipos de datos básicos:
+* **string**
+* **number**
+* **integer**
+* **boolean**
+* **array**
+* **object**
+
+Estos tipos se pueden combinar y definir mediante propiedades (properties) y arreglos (items) para representar estructuras complejas.
+
+==== Herramientas para trabajar con OpenAPI
+
+Existen diversas herramientas que facilitan la creación, visualización y validación de documentos OpenAPI:
+* **Swagger Editor:** Permite crear y editar especificaciones OpenAPI en tiempo real, con validación y previsualización.
+* **Swagger UI:** Genera documentación interactiva a partir del archivo YAML, permitiendo probar los endpoints.
+* **Redoc:** Ofrece otra alternativa para generar documentación elegante y fácil de navegar a partir de especificaciones OpenAPI.
+* **OpenAPI Generator:** Herramienta para generar automáticamente clientes, servidores y documentación en múltiples lenguajes a partir de un archivo OpenAPI.
+* **Postman:** Soporta la importación de especificaciones OpenAPI para crear colecciones de peticiones y facilitar las pruebas.
+
+Esta estructura estandarizada permite a desarrolladores y equipos mantener una documentación clara, actualizada y colaborativa, mejorando el ciclo de vida del desarrollo de APIs.
+
+=== Generación de documentación automática
+La documentación automática se integra en el flujo de desarrollo a través de:
+* Herramientas que extraen comentarios y anotaciones directamente del código (por ejemplo, JSDoc o APIDoc).
+* Generadores como Swagger Editor que actualizan la documentación a partir de cambios en la especificación.
+* Pipelines de CI/CD que aseguran que la documentación se mantenga sincronizada con la implementación.
+
+=== Buenas prácticas en la documentación
+Para ofrecer una documentación clara y útil se recomienda:
+* Mantener la documentación actualizada junto con los cambios en la API.
+* Incluir ejemplos prácticos de peticiones y respuestas.
+* Detallar los parámetros, códigos de error y casos de uso para cada endpoint.
+* Utilizar un formato estandarizado (como OpenAPI) para garantizar la interoperabilidad y facilitar la colaboración.
+
+== 6. Pruebas y Validación
+
+=== Pruebas unitarias y de integración
+Las pruebas son fundamentales para asegurar la calidad y estabilidad de una API.  
+* **Pruebas unitarias:** Verifican el funcionamiento correcto de funciones y módulos de forma aislada.  
+* **Pruebas de integración:** Evalúan la interacción entre componentes y la comunicación con servicios externos, garantizando que la API funcione correctamente en conjunto.
+
+=== Herramientas para testear APIs (Postman, Insomnia)
+Existen diversas herramientas que facilitan la ejecución y el análisis de peticiones:
+* **Postman:** Permite crear colecciones de peticiones, automatizar pruebas y generar documentación interactiva.  
+* **Insomnia:** Ofrece una interfaz intuitiva para diseñar y probar peticiones HTTP, ideal para depuración y validación rápida.
+Estas herramientas ayudan a simular escenarios reales de uso y a detectar errores antes del despliegue.
+
+=== Validación de datos y manejo de errores
+Una correcta validación y gestión de errores mejoran la robustez de la API:
+* **Validación de datos:** Implementar mecanismos para verificar y sanear la información recibida en las peticiones. Librerías como Joi o express-validator son comunes para esta tarea.
+* **Manejo de errores:** Establecer respuestas de error claras y consistentes, utilizando códigos HTTP adecuados (por ejemplo, 400 para solicitudes malformadas o 500 para errores internos). Además, es importante registrar los errores para facilitar su diagnóstico y resolución.
+
+== 7. Despliegue y Escalabilidad
+* Estrategias de despliegue
+* Monitoreo y logging
+* Escalabilidad y balanceo de carga
+
+== 8. Taller Práctico
+* Proyecto final: Diseño e implementación de una API Rest
+* Integración continua y despliegue en entornos de prueba y producción
+* Retroalimentación y mejora continua
+
+== Material Complementario
+* Enlaces a recursos y documentación adicional
+* Repositorios de ejemplos y ejercicios
+* Foros y comunidades de desarrolladores
+
+== Evaluación y Certificación
+* Criterios de evaluación
+* Exámenes teóricos y prácticos
+* Certificación de participación y competencias adquiridas

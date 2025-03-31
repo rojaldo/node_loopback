@@ -1,0 +1,789 @@
+:source-highlighter: highlight.js
+= Curso de Node.js
+:icons: font
+:toc: left
+:toclevels: 2
+
+== Módulo 1: Introducción
+=== ¿Qué es Node.js?
+Node.js es un entorno de ejecución basado en el motor V8 de Google Chrome que permite ejecutar código JavaScript en el lado del servidor. Esto abre la puerta a desarrollar aplicaciones de red escalables y eficientes.
+
+==== Historia y evolución
+* Surgió en 2009 gracias a Ryan Dahl.
+* Se diseñó para crear aplicaciones de red de alto rendimiento.
+* Ha evolucionado a lo largo de los años, incorporando mejoras en la gestión de módulos, el rendimiento y la comunidad de desarrolladores.
+
+==== Características principales
+* **I/O asíncrono y sin bloqueo:** Permite manejar múltiples conexiones simultáneamente sin necesidad de hilos pesados.
+* **Orientado a eventos:** Facilita la creación de aplicaciones en tiempo real y escalables.
+* **Ecosistema de módulos:** Gracias a NPM, se dispone de miles de módulos para extender la funcionalidad.
+* **Motor V8:** Proporciona un rendimiento rápido al compilar JavaScript a código máquina.
+
+==== Ventajas y casos de uso
+* **Ventajas:**
+  - Rendimiento óptimo en aplicaciones de alta concurrencia.
+  - Arquitectura modular y fácil de mantener.
+  - Comunidad activa y un amplio repositorio de paquetes.
+* **Casos de uso:**
+  - Aplicaciones en tiempo real (chat, juegos en línea).
+  - APIs y servicios web.
+  - Aplicaciones de streaming y procesamiento de datos en tiempo real.
+  - Microservicios y sistemas distribuidos.
+
+=== Configuración del Entorno de Desarrollo
+
+Para comenzar a desarrollar con Node.js, es fundamental asegurar que el entorno de desarrollo esté correctamente configurado. A continuación se detalla cada uno de los puntos claves:
+
+==== Instalación de Node.js y NPM
+Para ejecutar aplicaciones en Node.js es necesario instalar tanto Node.js como NPM (Node Package Manager). Puedes hacerlo de las siguientes maneras:
+
+* **Usando el gestor de paquetes APT (para distribuciones Debian/Ubuntu):**
+[source,bash]
+----
+sudo apt update
+sudo apt install nodejs npm
+----
+* **Usando Node Version Manager (NVM) para gestionar múltiples versiones:**
+[source,bash]
+----
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+source ~/.bashrc
+nvm install node
+----
+Estas herramientas te permiten gestionar tus dependencias y ejecutar código JavaScript en el servidor.
+
+==== Configuración del editor (VS Code)
+Visual Studio Code es un editor de código muy popular para el desarrollo en Node.js. Algunas recomendaciones para optimizar su uso son:
+
+* **Extensiones recomendadas:**
+  - **ESLint:** Para analizar la calidad del código y mantener las buenas prácticas.
+  - **Prettier:** Un formateador que ayuda a mantener un estilo consistente en el código.
+  - **Node.js Extension Pack:** Un conjunto de herramientas y snippets útiles para trabajar con Node.js.
+  
+* **Configuraciones sugeridas:**
+  - Habilitar el formateo automático al guardar el archivo.
+  - Configurar la terminal integrada para que utilice el shell de tu preferencia (por ejemplo, Bash o Zsh).
+  
+Para más detalles, consulta la documentación de VS Code en [Visual Studio Code Docs](https://code.visualstudio.com/docs).
+
+==== Primeros pasos con la terminal en Linux
+El uso de la terminal es esencial para gestionar tu proyecto Node.js. Algunos comandos básicos incluyen:
+
+* **Navegación y gestión de archivos:**
+[source,bash]
+----
+cd /ruta/de/tu/proyecto
+ls -la
+----
+* **Instalación de dependencias:**
+[source,bash]
+----
+npm install
+----
+* **Ejecución de la aplicación:**
+[source,bash]
+----
+node app.js
+----
+Familiarizarte con la terminal mejora tu productividad al permitir la automatización de tareas y el manejo eficiente de comandos.
+
+== Módulo 2: Fundamentos de JavaScript para Node.js
+=== Repaso de conceptos básicos de JavaScript
+
+Este módulo cubre los fundamentos esenciales de JavaScript, base para desarrollar en Node.js.
+
+==== Variables y tipos de datos
+En JavaScript, se pueden declarar variables usando `var`, `let` y `const`.  
+Los tipos de datos fundamentales incluyen:
+* **Números**
+* **Cadenas de texto (strings)**
+* **Booleanos**
+* **Objetos**
+* **Arreglos**
+* **Null y Undefined**
+
+Ejemplo:
+[source,js]
+----
+let numero = 42;
+const nombre = "Node.js";
+let esActivo = true;
+----
+*Nota:* Se recomienda utilizar `let` y `const` para evitar problemas de hoisting y para mantener la inmutabilidad cuando sea necesario.
+
+==== Funciones, callbacks y arrow functions
+Las funciones son bloques de código reutilizables que pueden recibir parámetros y devolver valores.  
+Un *callback* es una función que se pasa a otra función y se ejecuta posteriormente, generalmente tras la finalización de alguna operación asíncrona.  
+Las *arrow functions* ofrecen una sintaxis más concisa y, a diferencia de las funciones tradicionales, no tienen su propio contexto `this`.
+
+Ejemplo:
+[source,js]
+----
+function saludar(nombre) {
+    return `Hola, ${nombre}!`;
+}
+
+const ejecutarCallback = (callback) => {
+    callback();
+};
+
+const sumar = (a, b) => a + b;
+
+console.log(saludar("Mundo"));
+console.log(sumar(5, 3));
+----
+*Consejo:* Usa arrow functions para funciones simples y callbacks para operaciones asíncronas o manejo de eventos.
+
+==== Scope y closures
+El *scope* determina la visibilidad de las variables en diferentes partes del código:  
+* **Scope global:** Variables accesibles en cualquier parte del código.  
+* **Scope local:** Variables definidas dentro de funciones, accesibles solo en ese contexto.
+
+Los *closures* permiten que una función acceda a variables de su ámbito exterior incluso después de que la función exterior haya finalizado.
+
+Ejemplo de closure:
+[source,js]
+----
+function creaContador() {
+    let contador = 0;
+    return function() {
+        contador++;
+        return contador;
+    }
+}
+
+const incrementar = creaContador();
+console.log(incrementar()); // 1
+console.log(incrementar()); // 2
+----
+*Uso práctico:* Los closures son útiles para encapsular datos y crear funciones con estado interno.
+
+==== Eventos y manejo de errores
+El manejo de eventos es crucial en JavaScript, sobre todo en aplicaciones asíncronas y en Node.js, donde se utiliza frecuentemente el patrón del *EventEmitter*.
+
+Para el manejo de errores se utiliza la estructura `try/catch`:
+[source,js]
+----
+try {
+    // Código que puede lanzar un error
+    let resultado = noExisteVariable;
+} catch (error) {
+    console.error("Se ha producido un error:", error.message);
+}
+----
+En Node.js, el objeto `EventEmitter` permite crear y gestionar eventos personalizados:
+[source,js]
+----
+const EventEmitter = require('events');
+const emisor = new EventEmitter();
+
+emisor.on('saludo', (mensaje) => {
+    console.log(`Mensaje recibido: ${mensaje}`);
+});
+
+emisor.emit('saludo', 'Hola desde Node.js!');
+----
+*Importante:* Utiliza el manejo de errores para mejorar la resiliencia de tus aplicaciones y el patrón de eventos para implementar una arquitectura reactiva.
+
+=== Programación asíncrona
+
+La programación asíncrona permite que JavaScript ejecute operaciones que pueden tardar en completarse sin bloquear la ejecución del resto del código. Esto es esencial para el manejo de operaciones de E/S, peticiones HTTP, lecturas de archivos, entre otros, permitiendo una experiencia de usuario más fluida y aplicaciones más eficientes.
+
+==== Introducción a la asincronía en JavaScript
+La asincronía se basa en mecanismos como los callbacks, que permiten ejecutar funciones una vez que una tarea ha finalizado. Aunque los callbacks son efectivos, pueden complicar el manejo de errores y encadenar múltiples operaciones, lo que se conoce como "callback hell".
+
+Ejemplo sencillo con callback:
+[source,js]
+----
+setTimeout(() => {
+    console.log("Ejecución asíncrona con callback");
+}, 1000);
+----
+
+==== Promesas y async/await
+Las promesas son una forma de manejar operaciones asíncronas de manera más legible y estructurada. Una promesa es un objeto que representa la eventual finalización (o falla) de una operación asíncrona, y permite encadenar operaciones mediante métodos como .then() y .catch().
+
+Ejemplo de promesa:
+[source,js]
+----
+const obtenerDatos = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("Datos recibidos");
+        }, 1000);
+    });
+};
+
+obtenerDatos()
+    .then(datos => console.log(datos))
+    .catch(error => console.error(error));
+----
+
+La sintaxis async/await introducida en ES2017 simplifica el uso de promesas, permitiendo escribir código asíncrono de forma que se parezca al código sincrónico. La palabra clave async se utiliza para declarar una función asíncrona, y await se utiliza para esperar a que una promesa se resuelva.
+
+Ejemplo de async/await:
+[source,js]
+----
+const obtenerDatosAsync = async () => {
+    try {
+        const datos = await obtenerDatos();
+        console.log(datos);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+obtenerDatosAsync();
+----
+
+== Módulo 3: Módulos y Gestión de Dependencias
+=== Uso de módulos en Node.js
+
+Uno de los pilares en el desarrollo con Node.js es la utilización de módulos, lo que permite organizar el código en unidades reutilizables y mantenibles.
+
+==== Módulos nativos vs. módulos de terceros
+* **Módulos nativos:** Node.js incluye un conjunto de módulos integrados que proporcionan funcionalidades básicas sin necesidad de instalación adicional. Algunos ejemplos son:
+  - `fs`: manejo del sistema de archivos.
+  - `http`: creación de servidores web.
+  - `path`: manipulación de rutas de archivos.
+  
+  Para usarlos, basta con requerirlos:
+[source,js]
+----
+const fs = require('fs');
+const http = require('http');
+const path = require('path');
+----
+
+* **Módulos de terceros:** Son módulos creados por la comunidad que se instalan mediante NPM para agregar funcionalidades específicas que no están incluidas en Node.js de forma nativa. Algunos ejemplos son:
+  - `express`: framework para el desarrollo de aplicaciones web.
+  - `mongoose`: herramienta para interactuar con bases de datos MongoDB.
+  
+  Se instalan mediante:
+[source,bash]
+----
+npm install express mongoose
+----
+Y se usan de la siguiente manera:
+[source,js]
+----
+const express = require('express');
+const mongoose = require('mongoose');
+----
+
+==== Creación y exportación de módulos
+La modularización permite encapsular funcionalidades en archivos separados, facilitando la reutilización y el mantenimiento del código.
+
+Para crear un módulo personalizado:
+1. Define tus funciones o variables.
+2. Expórtalas utilizando `module.exports` o `exports`.
+
+Ejemplo de módulo personalizado:
+[source,js]
+----
+/* En utils.js */
+const saludar = (nombre) => {
+    return `Hola, ${nombre}!`;
+};
+
+module.exports = {
+    saludar
+};
+----
+
+Para utilizar este módulo en otro archivo, simplemente requiérelo:
+[source,js]
+----
+/* En app.js */
+const utils = require('./utils');
+
+console.log(utils.saludar("Mundo"));
+----
+Este enfoque permite dividir la aplicación en componentes modulares, facilitando tanto la escalabilidad como el trabajo colaborativo.
+
+=== Gestión de dependencias con NPM
+
+NPM (Node Package Manager) permite instalar, actualizar y gestionar las dependencias de tu proyecto Node.js.
+
+==== Instalación y actualización de paquetes
+Para instalar un paquete, utiliza el comando:
+[source,bash]
+----
+npm install <nombre-del-paquete>
+----
+Ejemplo:
+[source,bash]
+----
+npm install express
+----
+Para instalar un paquete de manera global, agrega la opción -g:
+[source,bash]
+----
+npm install -g nodemon
+----
+Para actualizar un paquete específico:
+[source,bash]
+----
+npm update <nombre-del-paquete>
+----
+
+==== Uso de package.json y package-lock.json
+El archivo package.json es el manifiesto de tu proyecto, donde se definen sus metadatos y dependencias. Puedes crearlo usando:
+[source,bash]
+----
+npm init
+----
+O para aceptar los valores predeterminados:
+[source,bash]
+----
+npm init -y
+----
+El archivo package-lock.json se genera automáticamente y asegura la instalación de las versiones exactas de tus dependencias, garantizando un entorno de desarrollo consistente.
+
+== Módulo 4: Desarrollo con Express
+=== Introducción a Express
+
+Express es un framework minimalista y flexible para Node.js que permite crear aplicaciones web y APIs de forma rápida y sencilla.
+
+==== Instalación y configuración
+Para comenzar a usar Express, primero instala el paquete:
+[source,bash]
+----
+npm install express
+----
+Luego, crea un archivo, por ejemplo, app.js, e importa Express de la siguiente manera:
+[source,js]
+----
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Configuración básica
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+----
+Esta configuración inicial permite manejar solicitudes JSON y datos URL encoded, estableciendo una base para tu aplicación.
+
+==== Creación de rutas básicas
+Definir rutas en Express es sencillo. Aquí tienes un ejemplo de rutas básicas:
+[source,js]
+----
+app.get('/', (req, res) => {
+  res.send('Bienvenido a Express!');
+});
+
+app.get('/acerca', (req, res) => {
+  res.send('Página Acerca de');
+});
+
+app.post('/usuario', (req, res) => {
+  // Lógica para crear un usuario
+  res.send('Usuario creado');
+});
+----
+Estas rutas muestran cómo manejar las peticiones GET y POST, permitiéndote construir una API robusta a partir de estos conceptos básicos.
+
+=== Middleware y manejo de peticiones
+
+El middleware en Express es una función que tiene acceso al objeto de solicitud (req), al objeto de respuesta (res) y a la siguiente función middleware en el ciclo de solicitud-respuesta. Se utiliza para ejecutar código, realizar validaciones, gestionar errores o modificar la solicitud/respuesta.
+
+==== Uso de middleware para validación y errores
+Puedes crear middleware personalizado para validar datos de la petición y gestionar errores de forma centralizada.
+
+Ejemplo:
+[source,js]
+----
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware para parsear JSON
+app.use(express.json());
+
+// Middleware de validación: verifica que se envíe un campo 'name'
+const validarNombre = (req, res, next) => {
+  if (!req.body.name) {
+    return res.status(400).json({ error: "El campo 'name' es obligatorio." });
+  }
+  next();
+};
+
+app.post('/usuario', validarNombre, (req, res) => {
+  // Lógica para crear un usuario
+  res.status(201).json({ mensaje: "Usuario creado", usuario: req.body });
+});
+
+// Middleware global para manejo de errores
+app.use((err, req, res, next) => {
+  console.error("Error detectado:", err);
+  res.status(500).json({ error: "Ocurrió un error inesperado" });
+});
+
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+----
+
+*Nota:* El middleware de manejo de errores se define con cuatro argumentos: error, req, res y next, lo que permite capturar y responder a errores de forma centralizada.
+
+==== Envío de respuestas y manejo de JSON
+Express facilita el envío de respuestas en formato JSON mediante el método res.json(). Esto permite enviar datos estructurados de manera sencilla.
+
+Ejemplo:
+[source,js]
+----
+app.get('/datos', (req, res) => {
+  const datos = {
+    mensaje: "Datos recibidos correctamente",
+    items: [1, 2, 3, 4]
+  };
+  res.json(datos);
+});
+----
+Este enfoque garantiza que las respuestas sean coherentes y fáciles de consumir por las aplicaciones cliente.
+
+== Módulo 5: Bases de Datos y Node.js
+=== Conexión a bases de datos
+
+La integración de bases de datos en Node.js es fundamental para almacenar y gestionar la información de tu aplicación. Dependiendo de la tecnología, puedes optar por soluciones NoSQL o SQL.
+
+==== Integración con MongoDB (Mongoose)
+Mongoose es un ODM (Object Data Modeling) para MongoDB que facilita la interacción con la base de datos, permitiendo definir esquemas y validar datos.
+
+Ejemplo básico:
+[source,js]
+----
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27017/tu_basedatos', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log("Conexión a MongoDB exitosa"))
+.catch(err => console.error("Error al conectar:", err));
+
+// Definición de un esquema y modelo
+const UsuarioSchema = new mongoose.Schema({
+    nombre: String,
+    email: { type: String, required: true, unique: true }
+});
+
+const Usuario = mongoose.model('Usuario', UsuarioSchema);
+
+module.exports = Usuario;
+----
+
+==== Conexión a SQL
+Node.js también puede integrarse con bases de datos SQL, como MySQL o PostgreSQL. Por ejemplo, utilizando el paquete 'mysql' para conectarse a una base de datos MySQL.
+
+Ejemplo básico con MySQL:
+[source,js]
+----
+const mysql = require('mysql');
+
+const conexion = mysql.createConnection({
+    host: 'localhost',
+    user: 'tu_usuario',
+    password: 'tu_contraseña',
+    database: 'tu_basedatos'
+});
+
+conexion.connect((error) => {
+    if (error) {
+        console.error('Error de conexión:', error);
+        return;
+    }
+    console.log('Conexión a MySQL exitosa');
+});
+
+module.exports = conexion;
+----
+
+=== Operaciones CRUD
+
+Las operaciones CRUD (Crear, Leer, Actualizar y Eliminar) son la base para interactuar con cualquier base de datos. A continuación se presenta un ejemplo de implementación utilizando Mongoose y Express en Node.js.
+
+==== Ejemplo de CRUD con Mongoose y Express
+[source,js]
+----
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+const port = 3000;
+
+app.use(express.json());
+
+// Conexión a MongoDB
+mongoose.connect('mongodb://localhost:27017/tu_basedatos', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log("Conexión a MongoDB exitosa"))
+.catch(err => console.error("Error al conectar:", err));
+
+// Definición del esquema y modelo
+const UsuarioSchema = new mongoose.Schema({
+    nombre: String,
+    email: { type: String, required: true, unique: true }
+});
+const Usuario = mongoose.model('Usuario', UsuarioSchema);
+
+// CREACIÓN: Agregar un nuevo usuario
+app.post('/usuarios', async (req, res) => {
+    try {
+        const nuevoUsuario = new Usuario(req.body);
+        const usuarioGuardado = await nuevoUsuario.save();
+        res.status(201).json(usuarioGuardado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// LECTURA: Obtener todos los usuarios
+app.get('/usuarios', async (req, res) => {
+    try {
+        const usuarios = await Usuario.find();
+        res.json(usuarios);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ACTUALIZACIÓN: Modificar un usuario existente
+app.put('/usuarios/:id', async (req, res) => {
+    try {
+        const usuarioActualizado = await Usuario.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!usuarioActualizado) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+        res.json(usuarioActualizado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// ELIMINACIÓN: Borrar un usuario
+app.delete('/usuarios/:id', async (req, res) => {
+    try {
+        const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
+        if (!usuarioEliminado) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+        res.json({ mensaje: "Usuario eliminado", usuario: usuarioEliminado });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+----
+
+*Nota:* Este ejemplo muestra cómo se pueden implementar las operaciones CRUD para un modelo "Usuario" usando Express para definir las rutas y Mongoose para interactuar con MongoDB. Cada operación (creación, lectura, actualización y eliminación) está gestionada por una ruta específica.
+
+== Módulo 6: Testing y Buenas Prácticas
+=== Introducción al Testing en Node.js
+
+El testing es fundamental para garantizar la calidad, confiabilidad y mantenimiento de las aplicaciones Node.js. En este módulo abordaremos tanto las herramientas de testing como la implementación de pruebas unitarias e integración.
+
+==== Herramientas de testing (Mocha, Chai, Jest)
+* **Mocha:** Un framework flexible para ejecutar pruebas en Node.js.
+* **Chai:** Una librería de aserciones que se integra fácilmente con Mocha.
+* **Jest:** Un framework completo que ofrece funcionalidades de testing unitario, de integración y de snapshot, todo en uno.
+
+Para instalar estas herramientas, puedes usar:
+[source,bash]
+----
+npm install --save-dev mocha chai jest
+----
+
+==== Pruebas unitarias e integración
+Las pruebas unitarias permiten testear componentes individuales de forma aislada, mientras que las pruebas de integración verifican la interacción entre dichos componentes.
+
+Ejemplo de prueba unitaria usando Mocha y Chai:
+[source,js]
+----
+const { expect } = require('chai');
+
+function sumar(a, b) {
+  return a + b;
+}
+
+describe('Función sumar', () => {
+  it('debería retornar 5 al sumar 2 y 3', () => {
+    expect(sumar(2, 3)).to.equal(5);
+  });
+});
+----
+
+Para ejecutar las pruebas, agrega un script en tu package.json:
+[source,json]
+----
+{
+  "scripts": {
+    "test": "mocha"
+  }
+}
+----
+
+Ejecuta las pruebas con:
+[source,bash]
+----
+npm test
+----
+Esta estrategia de testing te ayudará a identificar errores tempranamente y facilitará la integración de nuevos componentes en tu aplicación.
+
+=== Buenas prácticas de desarrollo
+
+Implementar buenas prácticas en el desarrollo de aplicaciones Node.js facilita el mantenimiento, escalabilidad y colaboración en equipo. A continuación se detallan dos aspectos clave:
+
+==== Estructura y organización de proyectos
+Organizar adecuadamente la estructura de carpetas y archivos ayuda a mantener el código limpio y modular. Una estructura recomendada podría ser:
+
+* /src
+  * /controllers       - Lógica de negocio y controladores de rutas
+  * /models            - Esquemas y modelos de base de datos
+  * /routes            - Definición de rutas y endpoints
+  * /middlewares       - Funciones middleware para validaciones y manejo de errores
+  * /utils             - Funciones y utilidades reutilizables
+* /tests               - Pruebas unitarias e integración
+* package.json         - Configuración y dependencias del proyecto
+
+Esta organización facilita la navegación por el código y promueve la reutilización y modularidad.
+
+==== Manejo de errores y logging
+1. **Manejo de errores:**  
+   Utiliza middleware para capturar y gestionar errores de forma centralizada, garantizando que las respuestas al cliente sean consistentes y evitando la caída de la aplicación.
+   
+   Ejemplo de middleware para manejo de errores:
+[source,js]
+----
+app.use((err, req, res, next) => {
+  console.error("Error detectado:", err);
+  res.status(500).json({ error: "Ocurrió un error inesperado." });
+});
+----
+
+2. **Logging:**  
+   Implementa un sistema de logging para registrar eventos, errores y actividad de la aplicación. Herramientas como [Winston](https://github.com/winstonjs/winston) o [Morgan](https://github.com/expressjs/morgan) son ampliamente utilizadas en la comunidad Node.js.
+   
+   Ejemplo de integración con Morgan para logging en Express:
+[source,js]
+----
+const morgan = require('morgan');
+app.use(morgan('combined'));
+----
+Utilizar un logger avanzado como Winston permite gestionar niveles (info, warn, error) y guardar logs en archivos o servicios externos, facilitando la monitorización y depuración en entornos de producción.
+
+== Módulo 7: Despliegue y Escalabilidad
+=== Despliegue de Aplicaciones Node.js
+
+El despliegue de una aplicación Node.js en entornos Linux requiere considerar aspectos como la gestión de procesos, la configuración de seguridad y la optimización del rendimiento. A continuación se presentan dos aspectos fundamentales para un despliegue exitoso:
+
+==== Estrategias de despliegue en entornos Linux
+* **Uso de un servidor web reverso:**  
+  Configura Nginx o Apache como proxy inverso para manejar las peticiones y redirigirlas a tu aplicación Node.js, mejorando la gestión de conexiones y la seguridad.
+  
+* **Automatización y scripts de despliegue:**  
+  Utiliza herramientas como Git, Ansible o scripts Bash personalizados para automatizar el proceso de despliegue, actualizaciones y manejo de dependencias.
+  
+* **Contenedores y Virtualización:**  
+  Considera la posibilidad de usar Docker para empaquetar la aplicación de forma consistente en diferentes entornos o bien, utiliza VMs para aislar la infraestructura.
+  
+Ejemplo básico de configuración de Nginx:
+[source,nginx]
+----
+server {
+    listen 80;
+    server_name tu-dominio.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+----
+
+==== Uso de PM2 para la administración de procesos
+PM2 es un administrador de procesos avanzado para aplicaciones Node.js que permite:
+* Mantener tu aplicación en ejecución (reiniciándola automáticamente en caso de falla).
+* Ejecución en modo cluster para aprovechar múltiples núcleos.
+* Monitoreo y logging centralizado de la aplicación.
+
+Pasos básicos para utilizar PM2:
+.Instalar PM2 de manera global:
+[source,bash]
+----
+npm install -g pm2
+----
+.Iniciar tu aplicación con PM2:
+[source,bash]
+----
+pm2 start app.js --name "mi-aplicacion"
+----
+.Configurar PM2 para que se inicie al arrancar el sistema:
+[source,bash]
+----
+pm2 startup
+pm2 save
+----
+Con estos pasos PM2 se encargará de la administración y monitoreo de tu aplicación, facilitando la escalabilidad y robustez en entornos de producción.
+
+=== Escalabilidad y rendimiento
+
+Optimizar el rendimiento de una aplicación Node.js y garantizar su escalabilidad es fundamental para responder a numerosas solicitudes concurrentes. Se pueden emplear diferentes estrategias:
+
+==== Conceptos de clustering y balanceo de carga
+El clustering permite aprovechar todos los núcleos de la CPU al ejecutar múltiples instancias de la aplicación. El balanceo de carga, a través de un servidor proxy (como Nginx) o herramientas como PM2, distribuye las solicitudes entre estas instancias.
+
+Ejemplo básico usando el módulo nativo "cluster":
+[source,js]
+----
+const cluster = require('cluster');
+const http = require('http');
+const numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+
+  // Crea un worker por cada CPU
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} finalizó`);
+  });
+} else {
+  // Workers comparten el mismo puerto
+  http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Hola Mundo\n');
+  }).listen(3000);
+
+  console.log(`Worker ${process.pid} iniciado`);
+}
+----
+
+==== Optimización de la aplicación
+Para mejorar el rendimiento se recomienda:
+* Optimizar operaciones y consultas a la base de datos.
+* Minimizar tareas bloqueantes en el event loop.
+* Implementar caching para reducir la latencia.
+* Monitorear la aplicación con herramientas de profiling y logging.
+
+Herramientas útiles incluyen:
+* **PM2:** Permite ejecutar aplicaciones en modo cluster y facilita el monitoreo.
+* **Redis o Memcached:** Para almacenamiento en caché de datos frecuentes.
+* **New Relic o AppDynamics:** Para monitorear el rendimiento de la aplicación.
+
+Aplicando estas estrategias, tu aplicación podrá escalar de forma efectiva y mantener un alto rendimiento en entornos de alta concurrencia.
