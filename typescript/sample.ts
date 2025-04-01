@@ -5,7 +5,8 @@ let student = {
 }
 
 
-class Person implements PersonInterface {
+
+class Person {
     constructor(protected _name: string, protected _age: number) {
 }
 }
