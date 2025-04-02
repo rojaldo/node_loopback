@@ -52,4 +52,23 @@ export class PingController {
       headers: Object.assign({}, this.req.headers),
     };
   }
+
+  @get('/echo')
+  @response(200, Object)
+  echo(): object {
+    // Reply with the request headers
+    return {
+      headers: Object.assign({}, this.req.headers),
+    };
+  }
+
+  @get('/echo2')
+  echo2(): object {
+    return {
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+      url: this.req.url,
+      headers: Object.assign({}, this.req.headers),
+    }
+  }
 }

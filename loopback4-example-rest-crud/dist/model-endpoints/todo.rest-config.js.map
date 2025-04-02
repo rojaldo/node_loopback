@@ -1,0 +1,1 @@
+{"version":3,"file":"todo.rest-config.js","sourceRoot":"","sources":["../../src/model-endpoints/todo.rest-config.ts"],"names":[],"mappings":";AAAA,2EAA2E;AAC3E,2CAA2C;AAC3C,+CAA+C;AAC/C,gEAAgE;;AAGhE,sCAA+B;AAE/B,MAAM,CAAC,OAAO,GAA2B;IACvC,KAAK,EAAE,aAAI;IACX,OAAO,EAAE,UAAU;IACnB,UAAU,EAAE,IAAI;IAChB,QAAQ,EAAE,QAAQ;CACnB,CAAC"}
