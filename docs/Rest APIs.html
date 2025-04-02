@@ -485,8 +485,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_validación_de_datos_y_manejo_de_errores">Validación de datos y manejo de errores</a></li>
 </ul>
 </li>
-<li><a href="#_7_despliegue_y_escalabilidad">7. Despliegue y Escalabilidad</a></li>
-<li><a href="#_8_taller_práctico">8. Taller Práctico</a></li>
+<li><a href="#_7_despliegue_y_escalabilidad">7. Despliegue y Escalabilidad</a>
+<ul class="sectlevel2">
+<li><a href="#_estrategias_de_despliegue">Estrategias de despliegue</a></li>
+<li><a href="#_monitoreo_y_logging">Monitoreo y logging</a></li>
+<li><a href="#_escalabilidad_y_balanceo_de_carga">Escalabilidad y balanceo de carga</a></li>
+</ul>
+</li>
 <li><a href="#_material_complementario">Material Complementario</a></li>
 <li><a href="#_evaluación_y_certificación">Evaluación y Certificación</a></li>
 </ul>
@@ -914,23 +919,104 @@ Estas herramientas ayudan a simular escenarios reales de uso y a detectar errore
 </li>
 </ul>
 </div>
+<div class="sect2">
+<h3 id="_estrategias_de_despliegue">Estrategias de despliegue</h3>
+<div class="paragraph">
+<p>Existen diversas estrategias para desplegar una API Rest en producción, entre las que destacan:
+- <strong>PM2:</strong> Un administrador de procesos que permite reiniciar la aplicación automáticamente, gestionar logs y aprovechar múltiples núcleos.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">pm2 start app.js --name "mi-api"
+pm2 save</code></pre>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_8_taller_práctico">8. Taller Práctico</h2>
-<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>Proyecto final: Diseño e implementación de una API Rest</p>
+<p><strong>Contenedores Docker:</strong> Facilitan la creación de ambientes consistentes y escalables.</p>
 </li>
 <li>
-<p>Integración continua y despliegue en entornos de prueba y producción</p>
-</li>
-<li>
-<p>Retroalimentación y mejora continua</p>
+<p><strong>Infraestructura en la nube:</strong> Plataformas como AWS, Azure o Google Cloud ofrecen herramientas para desplegar y escalar aplicaciones de forma automática.</p>
 </li>
 </ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_monitoreo_y_logging">Monitoreo y logging</h3>
+<div class="paragraph">
+<p>El monitoreo y el registro son esenciales para diagnosticar problemas y optimizar el rendimiento:
+- <strong>Monitoreo:</strong> Se pueden utilizar herramientas como New Relic, Prometheus o el módulo de monitoreo de PM2 para observar la salud de la API.
+- <strong>Logging:</strong> Implementa frameworks como Winston o Morgan para registrar solicitudes, eventos y errores.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const winston = require('winston');
+const logger = winston.createLogger({
+  level: 'info',
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'api.log' })
+  ],
+});</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Esta configuración permite registrar logs en consola y en archivos, facilitando la detección y análisis de incidencias.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_escalabilidad_y_balanceo_de_carga">Escalabilidad y balanceo de carga</h3>
+<div class="paragraph">
+<p>Para manejar altos volúmenes de tráfico y garantizar una alta disponibilidad, se pueden aplicar las siguientes técnicas:
+<strong>Clustering:</strong> Usa el módulo <code>cluster</code> de Node.js para aprovechar todos los núcleos del procesador.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const cluster = require('cluster');
+const os = require('os');
+
+if (cluster.isMaster) {
+  const cpuCount = os.cpus().length;
+  for (let i = 0; i &lt; cpuCount; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker) =&gt; {
+    console.log(`Worker ${worker.process.pid} finalizado. Reiniciando...`);
+    cluster.fork();
+  });
+} else {
+  // Inicia la aplicación en cada worker
+  require('./app');
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Balanceo de carga:</strong> Configura balanceadores de carga como Nginx o HAProxy para distribuir las solicitudes entre múltiples instancias de la API.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-nginx hljs" data-lang="nginx"># Ejemplo básico de configuración de Nginx
+upstream mi_api {
+  server 127.0.0.1:3000;
+  server 127.0.0.1:3001;
+}
+
+server {
+  listen 80;
+
+  location / {
+    proxy_pass http://mi_api;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Estas prácticas aseguran que la API se mantenga estable y responda eficientemente bajo cargas elevadas.</p>
+</div>
 </div>
 </div>
 </div>
@@ -973,7 +1059,7 @@ Estas herramientas ayudan a simular escenarios reales de uso y a detectar errore
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-31 08:31:20 +0200
+Last updated 2025-04-01 21:42:53 +0200
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

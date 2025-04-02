@@ -251,10 +251,79 @@ Una correcta validación y gestión de errores mejoran la robustez de la API:
 * Monitoreo y logging
 * Escalabilidad y balanceo de carga
 
-== 8. Taller Práctico
-* Proyecto final: Diseño e implementación de una API Rest
-* Integración continua y despliegue en entornos de prueba y producción
-* Retroalimentación y mejora continua
+=== Estrategias de despliegue
+Existen diversas estrategias para desplegar una API Rest en producción, entre las que destacan:
+- **PM2:** Un administrador de procesos que permite reiniciar la aplicación automáticamente, gestionar logs y aprovechar múltiples núcleos.
+[source, bash]
+----
+pm2 start app.js --name "mi-api"
+pm2 save
+----
+- **Contenedores Docker:** Facilitan la creación de ambientes consistentes y escalables.
+- **Infraestructura en la nube:** Plataformas como AWS, Azure o Google Cloud ofrecen herramientas para desplegar y escalar aplicaciones de forma automática.
+
+=== Monitoreo y logging
+El monitoreo y el registro son esenciales para diagnosticar problemas y optimizar el rendimiento:
+- **Monitoreo:** Se pueden utilizar herramientas como New Relic, Prometheus o el módulo de monitoreo de PM2 para observar la salud de la API.
+- **Logging:** Implementa frameworks como Winston o Morgan para registrar solicitudes, eventos y errores.
+[source, javascript]
+----
+const winston = require('winston');
+const logger = winston.createLogger({
+  level: 'info',
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'api.log' })
+  ],
+});
+----
+Esta configuración permite registrar logs en consola y en archivos, facilitando la detección y análisis de incidencias.
+
+=== Escalabilidad y balanceo de carga
+Para manejar altos volúmenes de tráfico y garantizar una alta disponibilidad, se pueden aplicar las siguientes técnicas:
+**Clustering:** Usa el módulo `cluster` de Node.js para aprovechar todos los núcleos del procesador.
+[source, javascript]
+----
+const cluster = require('cluster');
+const os = require('os');
+
+if (cluster.isMaster) {
+  const cpuCount = os.cpus().length;
+  for (let i = 0; i < cpuCount; i++) {
+    cluster.fork();
+  }
+  
+  cluster.on('exit', (worker) => {
+    console.log(`Worker ${worker.process.pid} finalizado. Reiniciando...`);
+    cluster.fork();
+  });
+} else {
+  // Inicia la aplicación en cada worker
+  require('./app');
+}
+----
+
+**Balanceo de carga:** Configura balanceadores de carga como Nginx o HAProxy para distribuir las solicitudes entre múltiples instancias de la API.
+[source, nginx]
+----
+# Ejemplo básico de configuración de Nginx
+upstream mi_api {
+  server 127.0.0.1:3000;
+  server 127.0.0.1:3001;
+}
+
+server {
+  listen 80;
+
+  location / {
+    proxy_pass http://mi_api;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
+----
+Estas prácticas aseguran que la API se mantenga estable y responda eficientemente bajo cargas elevadas.
+
 
 == Material Complementario
 * Enlaces a recursos y documentación adicional

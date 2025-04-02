@@ -462,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_3_arquitectura_de_loopback">3. Arquitectura de Loopback</a>
 <ul class="sectlevel2">
 <li><a href="#_estructura_de_un_proyecto_loopback">Estructura de un proyecto Loopback</a></li>
-<li><a href="#_componentes_principales_modelos_controladores_y_repositorios">Componentes principales: Modelos, Controladores y Repositorios</a></li>
+<li><a href="#_componentes_principales_controladores_repositorios_modelos_servicios_datasources">Componentes principales: Controladores, Repositorios, Modelos, Servicios, Datasources</a></li>
 <li><a href="#_conexión_e_integración_con_bases_de_datos">Conexión e integración con bases de datos</a></li>
 </ul>
 </li>
@@ -815,28 +815,477 @@ export class MyController {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_componentes_principales_modelos_controladores_y_repositorios">Componentes principales: Modelos, Controladores y Repositorios</h3>
+<h3 id="_componentes_principales_controladores_repositorios_modelos_servicios_datasources">Componentes principales: Controladores, Repositorios, Modelos, Servicios, Datasources</h3>
 <div class="paragraph">
 <p>El diseño modular de Loopback se basa en tres componentes esenciales:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Modelos:</strong>
-Representan las entidades de datos y definen sus propiedades, validaciones y relaciones. Los modelos en Loopback se utilizan para generar automáticamente endpoints RESTful, facilitando la exposición de operaciones CRUD sin necesidad de configuración adicional.</p>
-</li>
-<li>
 <p><strong>Controladores:</strong>
 Encargados de manejar las solicitudes HTTP, los controladores contienen la lógica de negocio de la aplicación. Se comunican con los repositorios para recuperar o modificar datos y devuelven respuestas adecuadas a los clientes.</p>
+</li>
+<li>
+<p><strong>Modelos:</strong>
+Representan las entidades de datos y definen sus propiedades, validaciones y relaciones. Los modelos en Loopback se utilizan para generar automáticamente endpoints RESTful, facilitando la exposición de operaciones CRUD sin necesidad de configuración adicional.</p>
 </li>
 <li>
 <p><strong>Repositorios:</strong>
 Actúan como una capa intermedia entre los modelos y las fuentes de datos. Los repositorios gestionan las operaciones de acceso a datos y encapsulan la lógica de integración con bases de datos, servicios externos o APIs. Esto permite modificar la fuente de datos sin afectar la lógica de negocio contenida en los modelos y controladores.</p>
 </li>
+<li>
+<p><strong>Servicios:</strong>
+Proporcionan lógica adicional o integración con servicios externos o internos. Los servicios pueden ser utilizados por los controladores para realizar tareas específicas, como enviar correos electrónicos, interactuar con APIs de terceros o realizar cálculos complejos.</p>
+</li>
+<li>
+<p><strong>Datasources:</strong>
+Configuran las conexiones a las fuentes de datos, como bases de datos SQL o NoSQL. Los datasources definen los parámetros de conexión y permiten a los repositorios interactuar con diferentes fuentes de datos sin necesidad de reescribir la lógica de acceso.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_controladores">Controladores</h4>
+<div class="paragraph">
+<p>Los controladores son la puerta de entrada a la lógica de negocio de la aplicación. Cada controlador se asocia a un conjunto de rutas y maneja las solicitudes HTTP correspondientes. Loopback permite definir controladores RESTful que responden a métodos HTTP (GET, POST, PUT, DELETE) y generan automáticamente la documentación Swagger (OpenAPI) para cada endpoint.</p>
+</div>
+<div class="paragraph">
+<p>Los controladores pueden ser personalizados para manejar la lógica de negocio específica, como validaciones adicionales, transformaciones de datos o integración con otros servicios.
+Por ejemplo, un controlador de productos podría tener métodos para listar productos, crear nuevos productos y actualizar o eliminar productos existentes. Cada método se asocia a una ruta específica y puede recibir parámetros de entrada a través de la URL o el cuerpo de la solicitud.</p>
+</div>
+<div class="paragraph">
+<p>El constructor de un controlador puede inyectar dependencias, como repositorios o servicios, utilizando el decorador <code>@inject</code>. Esto permite que los controladores sean modulares y reutilizables, facilitando la separación de responsabilidades y la gestión de la lógica de negocio.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un controlador que inyecta un repositorio y un servicio</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/controllers/product.controller.ts
+import {inject} from '@loopback/core';
+import {repository} from '@loopback/repository';
+import {get, post, requestBody} from '@loopback/rest';
+import {ProductRepository} from '../repositories/product.repository';
+import {MyService} from '../services/my.service';
+
+export class ProductController {
+  constructor(
+    @repository(ProductRepository)
+    private productRepository: ProductRepository,
+    @inject('services.MyService')
+    private myService: MyService,
+  ) {}
+
+  // Endpoint GET para obtener la lista de productos
+  @get('/products')
+  async listProducts(): Promise&lt;object&gt; {
+    const products = await this.productRepository.find();
+    return { products };
+  }
+
+  // Endpoint POST para crear un nuevo producto y utilizar el servicio
+  @post('/products')
+  async createProduct(
+    @requestBody() product: object,
+  ): Promise&lt;object&gt; {
+    const createdProduct = await this.productRepository.create(product);
+    // Procesa lógica adicional con el servicio inyectado
+    this.myService.process('Producto creado');
+    return createdProduct;
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Para crear documentación OpenAPI a medida, tenemos la anotación <code>@api</code> que permite definir la documentación de cada endpoint. Por ejemplo:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/controllers/product.controller.ts
+import {inject} from '@loopback/core';
+import {repository} from '@loopback/repository';
+import {get, post, requestBody, api} from '@loopback/rest';
+import {Product} from '../models/product.model';
+import {ProductRepository} from '../repositories/product.repository';
+import {MyService} from '../services/my.service';
+
+export class ProductController {
+  constructor(
+    @repository(ProductRepository)
+    private productRepository: ProductRepository,
+    @inject('services.MyService')
+    private myService: MyService,
+  ) {}
+
+  @api({
+    summary: 'Obtiene la lista de todos los productos',
+    responses: {
+      '200': {
+        description: 'Productos listados exitosamente',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: {'x-ts-type': Product},
+            },
+          },
+        },
+      },
+    },
+  })
+  @get('/products')
+  async listProducts(): Promise&lt;Product[]&gt; {
+    return this.productRepository.find();
+  }
+
+  @api({
+    summary: 'Crea un nuevo producto',
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {'x-ts-type': Product},
+        },
+      },
+    },
+    responses: {
+      '200': {
+        description: 'Producto creado exitosamente',
+        content: {
+          'application/json': {
+            schema: {'x-ts-type': Product},
+          },
+        },
+      },
+    },
+  })
+  @post('/products')
+  async createProduct(
+    @requestBody() product: Product,
+  ): Promise&lt;Product&gt; {
+    this.myService.process('Producto creado');
+    return this.productRepository.create(product);
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<div class="title">Un trolador puede recibir parámetros en:</div>
+<ul>
+<li>
+<p>El cuerpo de la solicitud (request body). Con <code>@requestBody</code>.</p>
+</li>
+<li>
+<p>Las consultas (query parameters). Con <code>@param.query</code>.</p>
+</li>
+<li>
+<p>Los parámetros de ruta (path parameters). Con <code>@param.path</code>.</p>
+</li>
+<li>
+<p>Los encabezados (headers). Con <code>@param.header</code>.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de controlador que utiliza diferentes tipos de parámetros en Loopback</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/controllers/example.controller.ts
+import {post, get, requestBody, param} from '@loopback/rest';
+
+export class ExampleController {
+  @post('/items/{id}')
+  async createItem(
+    @param.path.number('id') id: number,
+    @param.query.string('filter') filter: string,
+    @param.header.string('x-custom-header') customHeader: string,
+    @requestBody() body: {name: string; description?: string},
+  ): Promise&lt;object&gt; {
+    // Ejemplo de procesamiento de los parámetros recibidos
+    return {
+      id,
+      filter,
+      customHeader,
+      body,
+    };
+  }
+
+  /**
+   * Endpoint GET que utiliza un parámetro de ruta para obtener un ítem.
+   */
+  @get('/items/{id}')
+  async getItem(
+    @param.path.number('id') id: number,
+    @param.query.string('verbose') verbose?: string,
+  ): Promise&lt;object&gt; {
+    return {
+      id,
+      verbose,
+      message: `Obteniendo el item con id ${id}`,
+    };
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Una de las funciones más importantes de los controladores es la gestión de las respuestas HTTP. Loopback permite devolver diferentes tipos de respuestas según el resultado de la operación, como códigos de estado HTTP, mensajes personalizados o datos en formato JSON.</p>
+</div>
+<div class="paragraph">
+<p>Esto se logra utilizando los métodos <code>res.status()</code> y <code>res.json()</code>, que permiten establecer el código de estado y el cuerpo de la respuesta, respectivamente.</p>
+</div>
+<div class="paragraph">
+<p>Para los errores, Loopback proporciona la clase <code>HttpErrors</code>, que permite lanzar errores HTTP con códigos de estado específicos y mensajes personalizados. Esto facilita el manejo de errores y la comunicación clara con los clientes de la API.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un método post que devuelve un código de estado 201 y un mensaje personalizado en caso de éxito y un 400 en caso de error con HttpErrors</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/controllers/status.controller.ts
+import {
+  post,
+  requestBody,
+  HttpErrors,
+  Response,
+  RestBindings,
+  inject,
+} from '@loopback/rest';
+
+export class StatusController {
+  constructor(
+    @inject(RestBindings.Http.RESPONSE) private res: Response,
+  ) {}
+
+  @post('/create-item')
+  async createItem(
+    @requestBody() item: {name?: string; [key: string]: any},
+  ): Promise&lt;object&gt; {
+    try {
+      // Validación simple: se requiere el nombre del ítem
+      if (!item || !item.name) {
+        throw new Error('El nombre del ítem es requerido');
+      }
+      // Lógica de creación (simulada)
+      const createdItem = {id: 1, ...item};
+
+      // Establece el código de estado 201 y retorna el mensaje de éxito
+      this.res.status(201);
+      return {
+        message: 'Ítem creado exitosamente',
+        data: createdItem,
+      };
+    } catch (error) {
+      // En caso de error, se lanza un error Http con estado 400 y mensaje personalizado
+      throw new HttpErrors.BadRequest(error.message || 'Error al crear el ítem');
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_modelos">Modelos</h4>
+<div class="paragraph">
+<p>Los modelos son la representación de las entidades del dominio en Loopback. Definen las propiedades, tipos de datos y validaciones necesarias para cada entidad, así como las relaciones entre diferentes modelos.</p>
+</div>
+<div class="paragraph">
+<p>Los modelos se generan automáticamente a partir de las definiciones de datos y se utilizan para crear automáticamente los endpoints RESTful correspondientes. Esto permite que los desarrolladores se centren en la lógica de negocio sin preocuparse por la implementación de la API.</p>
+</div>
+<div class="ulist">
+<div class="title">Los modelos en Loopback son altamente configurables y permiten definir propiedades como:</div>
+<ul>
+<li>
+<p><strong>Propiedades:</strong> Definición de los atributos del modelo, incluyendo tipos de datos, longitudes y validaciones.</p>
+</li>
+<li>
+<p><strong>Relaciones:</strong> Definición de las relaciones entre diferentes modelos, como uno a uno, uno a muchos o muchos a muchos.</p>
+</li>
+<li>
+<p><strong>Validaciones:</strong> Configuración de reglas de validación para asegurar la integridad de los datos, como campos requeridos, formatos específicos o valores únicos.</p>
+</li>
+<li>
+<p><strong>Métodos personalizados:</strong> Posibilidad de definir métodos adicionales en los modelos para realizar operaciones específicas o cálculos relacionados con la entidad.</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">Las anotaciones de relaciones son:</div>
+<ul>
+<li>
+<p><code>@hasMany</code>: Define una relación uno a muchos, donde un modelo puede tener múltiples instancias de otro modelo.</p>
+</li>
+<li>
+<p><code>@hasOne</code>: Define una relación uno a uno, donde un modelo tiene una única instancia de otro modelo.</p>
+</li>
+<li>
+<p><code>@belongsTo</code>: Define una relación de pertenencia, donde un modelo pertenece a otro modelo.</p>
+</li>
+<li>
+<p><code>@hasManyThrough</code>: Define una relación muchos a muchos a través de un modelo intermedio.</p>
+</li>
+<li>
+<p><code>@ReferencesMany</code>: Define una relación de referencia, donde un modelo puede referenciar múltiples instancias de otro modelo.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Estos componentes trabajan en conjunto para mantener el código organizado, facilitar el desarrollo y promover la reutilización de código a lo largo del proyecto.</p>
+<p>Por ejemplo, un modelo de producto podría tener propiedades como <code>id</code>, <code>nombre</code>, <code>precio</code> y <code>categoría</code>, así como relaciones con otros modelos como <code>Categoría</code> o <code>Proveedor</code>. Esto permite que los desarrolladores trabajen con objetos de dominio en lugar de lidiar directamente con consultas SQL o comandos específicos de la base de datos.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un modelo de producto en Loopback con propiedades y relaciones</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/models/product.model.ts
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Category} from './category.model';
+import {Provider} from './provider.model';
+
+@model({
+  settings: {},
+})
+export class Product extends Entity {
+  @property({
+    type: 'number',
+    id: true,
+    generated: true,
+  })
+  id?: number;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  nombre: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  precio: number;
+
+  // Relación: Un producto pertenece a una categoría
+  @belongsTo(() =&gt; Category)
+  categoriaId: number;
+
+  // Relación: Un producto es suministrado por un proveedor
+  @belongsTo(() =&gt; Provider)
+  proveedorId: number;
+
+  constructor(data?: Partial&lt;Product&gt;) {
+    super(data);
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_repositorios">Repositorios</h4>
+<div class="paragraph">
+<p>Los repositorios son componentes clave en Loopback que facilitan la interacción con las fuentes de datos. Actúan como una capa de abstracción entre los modelos y las bases de datos, permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) de manera sencilla y eficiente.</p>
+</div>
+<div class="paragraph">
+<p>Los repositorios se generan automáticamente a partir de los modelos y se configuran para conectarse a las fuentes de datos definidas en el proyecto. Esto permite que los desarrolladores trabajen con objetos de dominio en lugar de lidiar directamente con consultas SQL o comandos específicos de la base de datos.</p>
+</div>
+<div class="paragraph">
+<p>Los repositorios pueden incluir métodos personalizados para realizar consultas específicas o manipular datos de manera más compleja. Además, Loopback proporciona una serie de métodos predefinidos para realizar operaciones comunes, como <code>find()</code>, <code>create()</code>, <code>update()</code>, y <code>delete()</code>.
+Por ejemplo, un repositorio de productos podría tener métodos para buscar productos por nombre, actualizar el precio de un producto o eliminar un producto específico. Estos métodos pueden ser utilizados directamente en los controladores o en otros componentes de la aplicación.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un repositorio que extiende el repositorio base de Loopback</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {inject} from '@loopback/core';
+import {DefaultCrudRepository} from '@loopback/repository';
+import {DbDataSource} from '../datasources';
+import {Todo, TodoRelations} from '../models';
+
+export class TodoRepository extends DefaultCrudRepository&lt;
+  Todo,
+  typeof Todo.prototype.id,
+  TodoRelations
+&gt; {
+  constructor(@inject('datasources.db') dataSource: DbDataSource) {
+    super(Todo, dataSource);
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_servicios">Servicios</h4>
+<div class="paragraph">
+<p>Los servicios en Loopback son componentes que encapsulan la lógica de negocio y permiten la reutilización de código en diferentes partes de la aplicación. Los servicios pueden ser utilizados por los controladores, repositorios u otros servicios, facilitando la separación de responsabilidades y la modularidad del código.</p>
+</div>
+<div class="paragraph">
+<p>Los servicios pueden incluir lógica de negocio compleja, integración con APIs externas, procesamiento de datos o cualquier otra funcionalidad que no encaje directamente en los modelos o controladores. Esto permite que los desarrolladores mantengan el código limpio y organizado, evitando la duplicación de lógica en diferentes partes de la aplicación.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un servicio que realiza una operación específica en Loopback</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">export class MyService {
+  constructor() {
+    // Inicialización del servicio si es necesario
+  }
+
+  process(input: string): string {
+    // Ejemplo de lógica: convertir el texto a mayúsculas y agregar un prefijo.
+    return `Resultado procesado: ${input.toUpperCase()}`;
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de inyección de un servicio en un controlador utilizando el decorador @inject</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">// filepath: /home/rojaldo/cursos/node/curso_loopback/src/controllers/order.controller.ts
+import {inject} from '@loopback/core';
+import {get} from '@loopback/rest';
+import {MyService} from '../services/my.service';
+
+export class OrderController {
+  constructor(
+    @inject('services.MyService')
+    private myService: MyService,
+  ) {}
+
+  // Endpoint GET que utiliza el servicio inyectado para procesar una orden
+  @get('/order/process')
+  processOrder(): object {
+    const result = this.myService.process('Orden procesada');
+    return {message: result};
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_datasources">Datasources</h4>
+<div class="paragraph">
+<p>Los datasources son componentes que configuran la conexión a las fuentes de datos, como bases de datos SQL o NoSQL. En Loopback, los datasources permiten a los repositorios interactuar con diferentes fuentes de datos sin necesidad de reescribir la lógica de acceso.</p>
+</div>
+<div class="paragraph">
+<p>Los datasources se definen en archivos de configuración y pueden incluir detalles como el tipo de conector (por ejemplo, MySQL, MongoDB), la URL de conexión, las credenciales y otros parámetros necesarios para establecer la conexión.</p>
+</div>
+<div class="paragraph">
+<p>Los datasources pueden ser utilizados por los repositorios para realizar operaciones CRUD y consultas a las bases de datos. Esto permite que los desarrolladores trabajen con objetos de dominio en lugar de lidiar directamente con consultas SQL o comandos específicos de la base de datos.</p>
+</div>
+<div class="listingblock">
+<div class="title">Un ejemplo de un datasource configurado para una base de datos MySQL</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {juggler} from '@loopback/repository';
+import {inject} from '@loopback/core';
+
+const config = {
+  name: 'mysqlDs',
+  connector: 'mysql',
+  host: 'localhost',
+  port: 3306,
+  user: 'tuUsuario',
+  password: 'tuContraseña',
+  database: 'nombreDeLaBaseDeDatos'
+};
+
+export class MysqlDataSource extends juggler.DataSource {
+  static dataSourceName = 'mysqlDs';
+
+  constructor(
+    @inject('datasources.config.mysqlDs', {optional: true})
+    dsConfig: object = config,
+  ) {
+    super(dsConfig);
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1046,6 +1495,150 @@ export class ErrorInterceptor implements Interceptor {
 <div class="paragraph">
 <p>De esta forma, se garantiza que los cambios en los modelos se reflejen en la base de datos de forma controlada.</p>
 </div>
+<div class="sect3">
+<h4 id="_inyección_del_objeto_response">Inyección del objeto response</h4>
+<div class="paragraph">
+<p>En Loopback es posible inyectar el objeto response en un controlador para poder manipular directamente la respuesta HTTP. Con el decorador @inject y el binding RestBindings.Http.RESPONSE se puede acceder a este objeto de forma sencilla. A continuación, se muestra un ejemplo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {Response, RestBindings} from '@loopback/rest';
+import {inject} from '@loopback/core';
+
+export class PingController {
+  constructor(@inject(RestBindings.Http.RESPONSE) private response: Response) {}
+
+  @get('/ping')
+  ping(): Response {
+    // Access the response object via `this.response`
+    this.response.status(200).send({
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+    });
+    // Return the HTTP response object so that LoopBack framework skips the
+    // generation of HTTP response
+    return this.response;
+  }
+
+  @get('/header')
+  header(): string {
+    // Set custom http response header
+    this.response.set('x-custom-res-header', 'xyz');
+    return 'Hello';
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_uso_del_objeto_context_para_acceder_a_request_y_response">Uso del objeto context para acceder a request y response</h4>
+<div class="paragraph">
+<p>En LoopBack se puede acceder al objeto context para obtener instancias de la solicitud y respuesta HTTP a través de inyección de dependencias. Esto permite realizar operaciones como extraer información de la solicitud (por ejemplo, la IP del cliente) o modificar la respuesta (por ejemplo, agregando encabezados personalizados). A continuación se muestra un ejemplo de cómo hacerlo en un controlador:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {RequestContext, RestBindings} from '@loopback/rest';
+import {inject} from '@loopback/core';
+
+export class PingController {
+  constructor(
+    @inject(RestBindings.Http.CONTEXT) private requestCtx: RequestContext,
+  ) {}
+
+  ping(): Response {
+    const {request, response} = this.requestCtx;
+    this.response.status(200).send({
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+      url: this.req.url,
+      headers: Object.assign({}, this.req.headers),
+    });
+    // Return the HTTP response object so that LoopBack framework skips the
+    // generation of HTTP response
+    return response;
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_uso_de_middleware_para_acceder_a_request_y_response">Uso de Middleware para acceder a request y response</h4>
+<div class="paragraph">
+<p>En Loopback puedes definir middlewares para interceptar y manipular la solicitud (request) y la respuesta (response) en el ciclo de vida de la petición. Esto es útil para tareas como logging, autenticación, o modificación de cabeceras.</p>
+</div>
+<div class="paragraph">
+<p>Un ejemplo de middleware que accede a ambos objetos es el siguiente:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {Middleware, MiddlewareContext} from '@loopback/rest';
+import {debugFactory} from 'debug';
+import {v1} from 'uuid';
+const trace = debugFactory('trace:request-response');
+
+/**
+ * An middleware for tracing HTTP requests/responses
+ * @param ctx - Context object
+ * @param next - Downstream middleware/handlers
+ */
+export const tracingMiddleware: Middleware = async (ctx, next) =&gt; {
+  setupRequestId(ctx);
+  const {request, response} = ctx;
+  try {
+    if (trace.enabled) {
+      const reqObj = {
+        method: request.method,
+        originalUrl: request.originalUrl,
+        headers: request.headers,
+        // Body is not available yet before `parseParams`
+      };
+      trace('Request: %s', reqObj);
+    }
+    const result = await next();
+    if (trace.enabled) {
+      const resObj = {
+        statusCode: response.statusCode,
+        headers: response.getHeaders(),
+      };
+      trace('Response: %s', resObj);
+    }
+    return result;
+  } catch (err) {
+    if (trace.enabled) {
+      trace('Error: %s', err);
+    }
+    throw err;
+  }
+};
+
+function setupRequestId(ctx: MiddlewareContext) {
+  let requestId = ctx.request?.get('X-Request-ID');
+  debug(
+    'RequestID for %s %s: %s',
+    ctx.request.method,
+    ctx.request.originalUrl,
+    requestId,
+  );
+  if (requestId == null) {
+    requestId = v1();
+    debug(
+      'A new RequestID is generated for %s %s: %s',
+      ctx.request.method,
+      ctx.request.originalUrl,
+      requestId,
+    );
+  }
+
+  // Bind `request.id` so that it is available for injection in downstream
+  // controllers/services
+  ctx.bind('request.id').to(requestId);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para utilizar este middleware, regístralo en el arreglo de middlewares de tu aplicación Loopback, normalmente en el archivo de configuración o en el constructor de la aplicación.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_ejemplos_prácticos">Ejemplos prácticos</h3>
@@ -1192,7 +1785,7 @@ describe('Calculator', () =&gt; {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-31 08:31:03 +0200
+Last updated 2025-04-02 08:30:08 +0200
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

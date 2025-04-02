@@ -476,6 +476,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_uso_de_los_objetos_request_y_response">Uso de los objetos Request y Response</a></li>
 <li><a href="#_envío_de_respuestas_en_diferentes_formatos_html_json_etc">Envío de respuestas en diferentes formatos (HTML, JSON, etc.)</a></li>
+<li><a href="#_parámetros_de_entrada">Parámetros de entrada</a></li>
 <li><a href="#_manejo_de_errores_y_respuestas_de_error">Manejo de errores y respuestas de error</a></li>
 </ul>
 </li>
@@ -1058,6 +1059,78 @@ app.listen(3000, () =&gt; {
 app.get('/json', (req, res) =&gt; {
   res.json({ mensaje: 'Respuesta en JSON' });
 });</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_parámetros_de_entrada">Parámetros de entrada</h3>
+<div class="paragraph">
+<p>Los parámetros de entrada se pueden capturar a través de:
+- <strong>Parámetros de ruta:</strong> Definidos en la URL (ej. /user/:id).
+- <strong>Query strings:</strong> Enviados en la URL (ej. /search?term=express).
+- <strong>Cuerpo de la solicitud:</strong> Enviados en el cuerpo de la petición (ej. en un formulario o JSON).</p>
+</div>
+<div class="sect3">
+<h4 id="_parámetros_de_ruta">Parámetros de Ruta</h4>
+<div class="paragraph">
+<p>Captura un parámetro definido en la URL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const express = require('express');
+const app = express();
+
+app.get('/user/:id', (req, res) =&gt; {
+  res.send(`Usuario con ID: ${req.params.id}`);
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Servidor en http://localhost:3000');
+});</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_query_strings">Query Strings</h4>
+<div class="paragraph">
+<p>Captura parámetros enviados en la URL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const express = require('express');
+const app = express();
+
+app.get('/search', (req, res) =&gt; {
+  const term = req.query.term || 'ningún término';
+  res.send(`Resultados para: ${term}`);
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Servidor en http://localhost:3000');
+});</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cuerpo_de_la_solicitud">Cuerpo de la Solicitud</h4>
+<div class="paragraph">
+<p>Captura datos enviados en el cuerpo de la petición (por ejemplo, en formato JSON):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/submit', (req, res) =&gt; {
+  res.send(`Datos recibidos: ${JSON.stringify(req.body)}`);
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Servidor en http://localhost:3000');
+});</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1681,7 +1754,7 @@ app.use(morgan('dev'));</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-31 08:30:56 +0200
+Last updated 2025-04-02 08:09:13 +0200
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

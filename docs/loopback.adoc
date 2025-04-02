@@ -476,7 +476,6 @@ Los modelos se generan automáticamente a partir de las definiciones de datos y 
 * `@hasManyThrough`: Define una relación muchos a muchos a través de un modelo intermedio.
 * `@ReferencesMany`: Define una relación de referencia, donde un modelo puede referenciar múltiples instancias de otro modelo.
 
-
 Por ejemplo, un modelo de producto podría tener propiedades como `id`, `nombre`, `precio` y `categoría`, así como relaciones con otros modelos como `Categoría` o `Proveedor`. Esto permite que los desarrolladores trabajen con objetos de dominio en lugar de lidiar directamente con consultas SQL o comandos específicos de la base de datos.
 
 .Un ejemplo de un modelo de producto en Loopback con propiedades y relaciones
@@ -792,6 +791,143 @@ async function migrateSchema(app) {
 ----
   
 De esta forma, se garantiza que los cambios en los modelos se reflejen en la base de datos de forma controlada.
+
+==== Inyección del objeto response
+
+En Loopback es posible inyectar el objeto response en un controlador para poder manipular directamente la respuesta HTTP. Con el decorador @inject y el binding RestBindings.Http.RESPONSE se puede acceder a este objeto de forma sencilla. A continuación, se muestra un ejemplo:
+
+[source, typescript]
+----
+import {Response, RestBindings} from '@loopback/rest';
+import {inject} from '@loopback/core';
+
+export class PingController {
+  constructor(@inject(RestBindings.Http.RESPONSE) private response: Response) {}
+
+  @get('/ping')
+  ping(): Response {
+    // Access the response object via `this.response`
+    this.response.status(200).send({
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+    });
+    // Return the HTTP response object so that LoopBack framework skips the
+    // generation of HTTP response
+    return this.response;
+  }
+
+  @get('/header')
+  header(): string {
+    // Set custom http response header
+    this.response.set('x-custom-res-header', 'xyz');
+    return 'Hello';
+  }
+}
+
+----
+
+==== Uso del objeto context para acceder a request y response
+
+En LoopBack se puede acceder al objeto context para obtener instancias de la solicitud y respuesta HTTP a través de inyección de dependencias. Esto permite realizar operaciones como extraer información de la solicitud (por ejemplo, la IP del cliente) o modificar la respuesta (por ejemplo, agregando encabezados personalizados). A continuación se muestra un ejemplo de cómo hacerlo en un controlador:
+
+[source, typescript]
+----
+import {RequestContext, RestBindings} from '@loopback/rest';
+import {inject} from '@loopback/core';
+
+export class PingController {
+  constructor(
+    @inject(RestBindings.Http.CONTEXT) private requestCtx: RequestContext,
+  ) {}
+
+  ping(): Response {
+    const {request, response} = this.requestCtx;
+    this.response.status(200).send({
+      greeting: 'Hello from LoopBack',
+      date: new Date(),
+      url: this.req.url,
+      headers: Object.assign({}, this.req.headers),
+    });
+    // Return the HTTP response object so that LoopBack framework skips the
+    // generation of HTTP response
+    return response;
+  }
+}
+----
+
+==== Uso de Middleware para acceder a request y response
+
+En Loopback puedes definir middlewares para interceptar y manipular la solicitud (request) y la respuesta (response) en el ciclo de vida de la petición. Esto es útil para tareas como logging, autenticación, o modificación de cabeceras.
+
+Un ejemplo de middleware que accede a ambos objetos es el siguiente:
+
+[source, typescript]
+----
+import {Middleware, MiddlewareContext} from '@loopback/rest';
+import {debugFactory} from 'debug';
+import {v1} from 'uuid';
+const trace = debugFactory('trace:request-response');
+
+/**
+ * An middleware for tracing HTTP requests/responses
+ * @param ctx - Context object
+ * @param next - Downstream middleware/handlers
+ */
+export const tracingMiddleware: Middleware = async (ctx, next) => {
+  setupRequestId(ctx);
+  const {request, response} = ctx;
+  try {
+    if (trace.enabled) {
+      const reqObj = {
+        method: request.method,
+        originalUrl: request.originalUrl,
+        headers: request.headers,
+        // Body is not available yet before `parseParams`
+      };
+      trace('Request: %s', reqObj);
+    }
+    const result = await next();
+    if (trace.enabled) {
+      const resObj = {
+        statusCode: response.statusCode,
+        headers: response.getHeaders(),
+      };
+      trace('Response: %s', resObj);
+    }
+    return result;
+  } catch (err) {
+    if (trace.enabled) {
+      trace('Error: %s', err);
+    }
+    throw err;
+  }
+};
+
+function setupRequestId(ctx: MiddlewareContext) {
+  let requestId = ctx.request?.get('X-Request-ID');
+  debug(
+    'RequestID for %s %s: %s',
+    ctx.request.method,
+    ctx.request.originalUrl,
+    requestId,
+  );
+  if (requestId == null) {
+    requestId = v1();
+    debug(
+      'A new RequestID is generated for %s %s: %s',
+      ctx.request.method,
+      ctx.request.originalUrl,
+      requestId,
+    );
+  }
+
+  // Bind `request.id` so that it is available for injection in downstream
+  // controllers/services
+  ctx.bind('request.id').to(requestId);
+}
+----
+
+Para utilizar este middleware, regístralo en el arreglo de middlewares de tu aplicación Loopback, normalmente en el archivo de configuración o en el constructor de la aplicación.
 
 === Ejemplos prácticos
 Para consolidar los conceptos, se recomienda realizar ejercicios prácticos tales como:

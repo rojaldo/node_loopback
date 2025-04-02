@@ -381,6 +381,70 @@ app.get('/json', (req, res) => {
 });
 ----
 
+=== Parámetros de entrada
+
+Los parámetros de entrada se pueden capturar a través de:
+- **Parámetros de ruta:** Definidos en la URL (ej. /user/:id).
+- **Query strings:** Enviados en la URL (ej. /search?term=express).
+- **Cuerpo de la solicitud:** Enviados en el cuerpo de la petición (ej. en un formulario o JSON).
+
+==== Parámetros de Ruta
+
+Captura un parámetro definido en la URL:
+
+[source, javascript]
+----
+const express = require('express');
+const app = express();
+
+app.get('/user/:id', (req, res) => {
+  res.send(`Usuario con ID: ${req.params.id}`);
+});
+
+app.listen(3000, () => {
+  console.log('Servidor en http://localhost:3000');
+});
+----
+
+==== Query Strings
+
+Captura parámetros enviados en la URL:
+
+[source, javascript]
+----
+const express = require('express');
+const app = express();
+
+app.get('/search', (req, res) => {
+  const term = req.query.term || 'ningún término';
+  res.send(`Resultados para: ${term}`);
+});
+
+app.listen(3000, () => {
+  console.log('Servidor en http://localhost:3000');
+});
+----
+
+==== Cuerpo de la Solicitud
+
+Captura datos enviados en el cuerpo de la petición (por ejemplo, en formato JSON):
+
+[source, javascript]
+----
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/submit', (req, res) => {
+  res.send(`Datos recibidos: ${JSON.stringify(req.body)}`);
+});
+
+app.listen(3000, () => {
+  console.log('Servidor en http://localhost:3000');
+});
+----
+
 === Manejo de errores y respuestas de error
 Express permite manejar errores a través de middlewares especiales. Un middleware de error recibe cuatro parámetros (err, req, res, next). Esto permite centralizar la gestión de errores y enviar respuestas de error personalizadas.
 
