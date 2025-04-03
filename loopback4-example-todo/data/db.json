@@ -1,7 +1,9 @@
 {
   "ids": {
     "Todo": 5,
-    "TriviaQuestion": 2
+    "TriviaQuestion": 2,
+    "User": 2,
+    "Book": 4
   },
   "models": {
     "Todo": {
@@ -12,6 +14,13 @@
     },
     "TriviaQuestion": {
       "1": "{\"category\":\"Science: Computers\",\"type\":\"multiple\",\"difficulty\":\"medium\",\"question\":\"What is the capital of France?\",\"correct_answer\":\"Paris\",\"incorrect_answers\":[\"London\",\"Berlin\",\"Madrid\"],\"id\":1}"
+    },
+    "User": {
+      "1": "{\"name\":\"Juan\",\"age\":34,\"id\":1}"
+    },
+    "Book": {
+      "2": "{\"id\":2,\"title\":\"Take over \",\"description\":\"a description\",\"pages\":39,\"isbn\":\"isbncode\"}",
+      "3": "{\"title\":\"Take over \",\"description\":\"a description\",\"isbn\":\"isbncode\",\"id\":3}"
     }
   }
 }

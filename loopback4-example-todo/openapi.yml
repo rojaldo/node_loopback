@@ -145,6 +145,9 @@ components:
     TriviaQuestion:
       type: object
       properties:
+        id:
+          type: integer
+          example: 1
         category:
           type: string
           example: "Science: Computers"
