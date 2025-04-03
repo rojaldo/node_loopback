@@ -47,7 +47,7 @@ let OpenApiController = class OpenApiController {
      * @returns Created
      */
     async createTriviaQuestion(_requestBody) {
-        throw new Error('Not implemented');
+        return this.repository.create(_requestBody);
     }
 };
 exports.OpenApiController = OpenApiController;

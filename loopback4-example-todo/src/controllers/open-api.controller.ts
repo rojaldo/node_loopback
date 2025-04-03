@@ -366,7 +366,7 @@ true/false.
   correct_answer?: string;
   incorrect_answers?: string[];
 }): Promise<TriviaQuestion> {
-     throw new Error('Not implemented'); 
+     return this.repository.create(_requestBody);
   }
 }
 
