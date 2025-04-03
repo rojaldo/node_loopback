@@ -9,7 +9,7 @@ export declare class TodoController {
     create(todo: Omit<Todo, 'id'>): Promise<Todo>;
     findById(id: number, filter?: FilterExcludingWhere<Todo>): Promise<Todo>;
     find(filter?: Filter<Todo>): Promise<Todo[]>;
-    replaceById(id: number, todo: Todo): Promise<void>;
+    replaceById(id: number, todo: Todo, filter?: Filter<Todo>): Promise<void>;
     updateById(id: number, todo: Todo): Promise<void>;
     deleteById(id: number): Promise<void>;
     count(where?: Where<Todo>): Promise<Count>;

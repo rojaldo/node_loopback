@@ -39,7 +39,13 @@ let TodoController = class TodoController {
     async find(filter) {
         return this.todoRepository.find(filter);
     }
-    async replaceById(id, todo) {
+    async replaceById(id, todo, filter) {
+        // find the todo by id
+        const foundTodo = await this.todoRepository.findById(id);
+        // if not found, return 404
+        if (!foundTodo) {
+            throw new rest_1.HttpErrors.NotFound(`Todo with id ${id} not found`);
+        }
         await this.todoRepository.replaceById(id, todo);
     }
     async updateById(id, todo) {
@@ -125,12 +131,26 @@ tslib_1.__decorate([
             '204': {
                 description: 'Todo PUT success',
             },
+            '400': {
+                description: 'Todo PUT failed',
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                error: { type: 'string' },
+                            },
+                        },
+                    },
+                },
+            },
         },
     }),
     tslib_1.__param(0, rest_1.param.path.number('id')),
     tslib_1.__param(1, (0, rest_1.requestBody)()),
+    tslib_1.__param(2, rest_1.param.filter(models_1.Todo)),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Number, models_1.Todo]),
+    tslib_1.__metadata("design:paramtypes", [Number, models_1.Todo, Object]),
     tslib_1.__metadata("design:returntype", Promise)
 ], TodoController.prototype, "replaceById", null);
 tslib_1.__decorate([

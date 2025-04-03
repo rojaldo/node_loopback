@@ -136,7 +136,14 @@ export class TodoController {
   async replaceById(
     @param.path.number('id') id: number,
     @requestBody() todo: Todo,
+    @param.filter(Todo) filter?: Filter<Todo>,
   ): Promise<void> {
+    // find the todo by id
+    const foundTodo = await this.todoRepository.findById(id);
+    // if not found, return 404
+    if (!foundTodo) {
+      throw new HttpErrors.NotFound(`Todo with id ${id} not found`);
+    }
     await this.todoRepository.replaceById(id, todo);
   }
 
