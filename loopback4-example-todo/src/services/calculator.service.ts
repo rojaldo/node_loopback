@@ -9,11 +9,11 @@ export class CalculatorService {
    * Add service methods here
    */
 
-  calculate(
+  async calculate(
     num1: number,
     num2: number,
     operation: string,
-  ): number {
+  ): Promise<number> {
     switch (operation) {
       case 'add':
         return num1 + num2;

@@ -6,9 +6,8 @@ const tslib_1 = require("tslib");
 const rest_1 = require("@loopback/rest");
 const echo_model_1 = require("../models/echo.model");
 const core_1 = require("@loopback/core");
-const interceptors_1 = require("../interceptors");
+const sample_interceptor_1 = require("../interceptors/sample.interceptor");
 // import {inject} from '@loopback/core';
-// @intercept('sample')
 let EchoController = class EchoController {
     constructor() { }
     async echo(message) {
@@ -25,13 +24,13 @@ let EchoController = class EchoController {
 exports.EchoController = EchoController;
 tslib_1.__decorate([
     (0, rest_1.get)('/echo'),
-    tslib_1.__param(0, rest_1.param.query.string('message', { required: true })),
+    tslib_1.__param(0, rest_1.param.query.string('message')),
     tslib_1.__metadata("design:type", Function),
     tslib_1.__metadata("design:paramtypes", [String]),
     tslib_1.__metadata("design:returntype", Promise)
 ], EchoController.prototype, "echo", null);
 exports.EchoController = EchoController = tslib_1.__decorate([
-    (0, core_1.intercept)(interceptors_1.SampleInterceptor.BINDING_KEY),
+    (0, core_1.intercept)(sample_interceptor_1.SampleInterceptor.BINDING_KEY),
     tslib_1.__metadata("design:paramtypes", [])
 ], EchoController);
 //# sourceMappingURL=echo.controller.js.map

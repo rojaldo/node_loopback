@@ -15,6 +15,7 @@ import {Todo} from '../../../models/index';
 import {TodoRepository} from '../../../repositories';
 import {Geocoder} from '../../../services';
 import {aLocation, givenTodo} from '../../helpers';
+import exp from 'constants';
 
 describe('TodoController', () => {
   let todoRepo: StubbedInstanceWithSinonAccessor<TodoRepository>;

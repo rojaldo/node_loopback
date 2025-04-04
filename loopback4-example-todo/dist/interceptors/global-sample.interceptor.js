@@ -1,14 +1,13 @@
 "use strict";
-var SampleInterceptor_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SampleInterceptor = void 0;
+exports.GlobalSampleInterceptor = void 0;
 const tslib_1 = require("tslib");
 const core_1 = require("@loopback/core");
 /**
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
-let SampleInterceptor = SampleInterceptor_1 = class SampleInterceptor {
+let GlobalSampleInterceptor = class GlobalSampleInterceptor {
     /*
     constructor() {}
     */
@@ -29,22 +28,25 @@ let SampleInterceptor = SampleInterceptor_1 = class SampleInterceptor {
     async intercept(invocationCtx, next) {
         try {
             // Add pre-invocation logic here
-            console.log(`Intercepting ${invocationCtx.targetName}.${invocationCtx.methodName}`);
+            // console.log('Global interceptor invoked');
+            // console.log('Invocation context:', invocationCtx);
+            // console.log('Method name:', invocationCtx.methodName);
+            // console.log('Arguments:', invocationCtx.args);
+            // console.log('Target:', invocationCtx.target);
             const result = await next();
             // Add post-invocation logic here
-            console.log(`Result of ${invocationCtx.targetName}.${invocationCtx.methodName}:`, result);
+            // console.log('Result:', result);
             return result;
         }
         catch (err) {
-            console.error(`Error occurred in ${invocationCtx.targetName}.${invocationCtx.methodName}:`, err);
+            // log('Error occurred:', err);
             // Add error handling logic here
             throw err;
         }
     }
 };
-exports.SampleInterceptor = SampleInterceptor;
-SampleInterceptor.BINDING_KEY = `interceptors.${SampleInterceptor_1.name}`;
-exports.SampleInterceptor = SampleInterceptor = SampleInterceptor_1 = tslib_1.__decorate([
-    (0, core_1.injectable)({ tags: { key: SampleInterceptor.BINDING_KEY } })
-], SampleInterceptor);
-//# sourceMappingURL=sample.interceptor.js.map
+exports.GlobalSampleInterceptor = GlobalSampleInterceptor;
+exports.GlobalSampleInterceptor = GlobalSampleInterceptor = tslib_1.__decorate([
+    (0, core_1.globalInterceptor)('', { tags: { name: 'globalSample' } })
+], GlobalSampleInterceptor);
+//# sourceMappingURL=global-sample.interceptor.js.map

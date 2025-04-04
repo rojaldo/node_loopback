@@ -870,7 +870,7 @@ Estas herramientas te ayudarán a monitorear y depurar tu aplicación de forma e
 - Buenas prácticas y patrones de diseño
 
 === Principales recursos y librerías útiles para Express.js
-Algunas librerías y herramientas que pueden complementar tus proyectos con Express incluyen:
+.Algunas librerías y herramientas que pueden complementar tus proyectos con Express incluyen:
 - **dotenv**: Gestión de variables de entorno.
 - **helmet**: Mejora la seguridad de las cabeceras HTTP.
 - **morgan**: Registro de solicitudes HTTP.

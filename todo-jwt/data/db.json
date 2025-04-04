@@ -1,8 +1,8 @@
 {
   "ids": {
     "Todo": 5,
-    "User": 5,
-    "UserCredentials": 2
+    "User": 7,
+    "UserCredentials": 4
   },
   "models": {
     "Todo": {
@@ -12,10 +12,14 @@
       "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"id\":4}"
     },
     "User": {
-      "4": "{\"username\":\"testuser1\",\"email\":\"testuser1@abc.com\",\"id\":4}"
+      "4": "{\"username\":\"testuser1\",\"email\":\"testuser1@abc.com\",\"id\":4}",
+      "7fc5acc6-4355-4776-8ade-f60c738c2e53": "{\"id\":\"7fc5acc6-4355-4776-8ade-f60c738c2e53\",\"email\":\"uno@cualquiera.com\"}",
+      "d0080957-e9a5-468c-a632-18a3b2845ba4": "{\"id\":\"d0080957-e9a5-468c-a632-18a3b2845ba4\",\"email\":\"uno@cualquiera.com\"}"
     },
     "UserCredentials": {
-      "1": "{\"password\":\"$2a$10$QrcA7GDOZ06TTXEBhuz87On8mcapb9qoU3rjWb7Z5pwBv7ZAbmXwa\",\"userId\":4,\"id\":1}"
+      "1": "{\"password\":\"$2a$10$QrcA7GDOZ06TTXEBhuz87On8mcapb9qoU3rjWb7Z5pwBv7ZAbmXwa\",\"userId\":4,\"id\":1}",
+      "bfe47eb8-3def-41c3-b19f-abc1d7a36b33": "{\"id\":\"bfe47eb8-3def-41c3-b19f-abc1d7a36b33\",\"password\":\"$2a$10$MgFzUFR2Dx3jqbBCvMNc2OpYSM3g5zYRwuHroSliV.xdIh3I28r1.\",\"userId\":\"7fc5acc6-4355-4776-8ade-f60c738c2e53\"}",
+      "12e6cab5-a16c-4362-8d82-c12aabcb1d3c": "{\"id\":\"12e6cab5-a16c-4362-8d82-c12aabcb1d3c\",\"password\":\"$2a$10$Zu6YtbXAVP5d57qCfn0nvuANbxTreMGYwvHaYURde/evVKwEcn2eq\",\"userId\":\"d0080957-e9a5-468c-a632-18a3b2845ba4\"}"
     }
   }
 }

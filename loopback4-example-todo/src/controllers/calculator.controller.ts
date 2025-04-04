@@ -26,10 +26,10 @@ export class CalculatorController {
       );
     }
 
-    let result = this.calculatorService.calculate(num1, num2, operation);
+    let result = await this.calculatorService.calculate(num1, num2, operation);
 
     return new CalculatorResponse({
-      reponse: `The result of ${operation} between ${num1} and ${num2} is ${result}`,
+      reponse: `${result}`,
       timestamp: (new Date()).toISOString(),
     });
   }

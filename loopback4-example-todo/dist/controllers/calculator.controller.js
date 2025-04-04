@@ -16,7 +16,7 @@ let CalculatorController = class CalculatorController {
         if (!operation || operation.length === 0 || operation.trim().length === 0 || operation !== 'add' && operation !== 'sub' && operation !== 'mult' && operation !== 'div') {
             throw new rest_1.HttpErrors.BadRequest('The `operation` query parameter is required and must be one of the following: add, sub, mult, div.');
         }
-        let result = this.calculatorService.calculate(num1, num2, operation);
+        let result = await this.calculatorService.calculate(num1, num2, operation);
         return new calculator_response_model_1.CalculatorResponse({
             reponse: `The result of ${operation} between ${num1} and ${num2} is ${result}`,
             timestamp: (new Date()).toISOString(),
