@@ -5,11 +5,12 @@ import { Echo } from "../models/echo.model";
 
 // import {inject} from '@loopback/core';
 
-
+// @intercept('sample')
 export class EchoController {
   constructor() {}
 
   @get('/echo')
+
   async echo(
     @param.query.string('message', {required: true})
     message: string,
@@ -19,6 +20,7 @@ export class EchoController {
         'The `message` query parameter is required.',
       );
     }
+
     return new Echo({
       message: message,
       timestamp: (new Date()).toISOString(),

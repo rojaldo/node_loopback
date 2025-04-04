@@ -1,0 +1,59 @@
+{
+  "name": "@loopback/http-caching-proxy",
+  "description": "A caching HTTP proxy for integration tests. NOT SUITABLE FOR PRODUCTION USE!",
+  "version": "6.0.12",
+  "keywords": [
+    "LoopBack",
+    "HTTP",
+    "Proxy",
+    "Cache",
+    "Test"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "IBM Corp. and LoopBack contributors",
+  "copyright.owner": "IBM Corp. and LoopBack contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopbackio/loopback-next.git",
+    "directory": "packages/http-caching-proxy"
+  },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "clean": "lb-clean loopback-caching-proxy*.tgz dist *.tsbuildinfo package",
+    "pretest": "npm run build",
+    "test": "lb-mocha \"dist/__tests__/**/*.js\"",
+    "verify": "npm pack && tar xf loopback-caching-proxy*.tgz && tree package && npm run clean"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "dependencies": {
+    "axios": "^1.8.3",
+    "cacache": "^19.0.1",
+    "debug": "^4.4.0",
+    "rimraf": "^5.0.10",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@loopback/build": "^11.0.10",
+    "@loopback/eslint-config": "^15.0.5",
+    "@loopback/testlab": "^7.0.11",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^16.18.126",
+    "@types/rimraf": "^3.0.2",
+    "@types/tunnel": "0.0.7",
+    "delay": "^5.0.0",
+    "tunnel": "0.0.6"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "@loopback/metrics",
+  "description": "An extension exposes metrics for Prometheus with LoopBack 4",
+  "version": "0.14.12",
+  "keywords": [
+    "LoopBack",
+    "Cloud Native",
+    "Prometheus",
+    "Metrics"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "IBM Corp. and LoopBack contributors",
+  "copyright.owner": "IBM Corp. and LoopBack contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopbackio/loopback-next.git",
+    "directory": "extensions/metrics"
+  },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "clean": "lb-clean loopback-extension-metrics*.tgz dist *.tsbuildinfo package",
+    "pretest": "npm run build",
+    "test": "lb-mocha \"dist/__tests__/**/*.js\"",
+    "verify": "npm pack && tar xf loopback-extension-metrics*.tgz && tree package && npm run clean"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__",
+    "templates"
+  ],
+  "peerDependencies": {
+    "@loopback/core": "^6.0.0",
+    "@loopback/rest": "^14.0.0"
+  },
+  "dependencies": {
+    "prom-client": "^14.2.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@loopback/build": "^11.0.10",
+    "@loopback/core": "^6.1.9",
+    "@loopback/eslint-config": "^15.0.5",
+    "@loopback/rest": "^14.0.12",
+    "@loopback/testlab": "^7.0.11",
+    "@types/express": "^4.17.21",
+    "@types/node": "^16.18.126",
+    "express": "^4.21.2"
+  }
+}

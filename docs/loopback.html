@@ -1287,6 +1287,199 @@ export class MysqlDataSource extends juggler.DataSource {
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_interceptores">Interceptores</h4>
+<div class="paragraph">
+<p>Los interceptores en Loopback son componentes que permiten inyectar lógica adicional en el ciclo de vida de una solicitud, similar a lo que hace un middleware. Su función es ejecutar código antes, durante o después de la ejecución de un endpoint, lo que facilita:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>La gestión centralizada de errores.</p>
+</li>
+<li>
+<p>El registro (logging) de eventos.</p>
+</li>
+<li>
+<p>La aplicación de validaciones o transformaciones de datos.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Un interceptor global se registra a nivel de la aplicación (por ejemplo, mediante el método <code>this.interceptor(&#8230;&#8203;)</code> en la configuración de la aplicación). Esto significa que se aplica a <strong>todas</strong> las invocaciones de métodos dentro de la aplicación, permitiendo centralizar funcionalidades transversales como manejo de errores, logging o validaciones.</p>
+</div>
+<div class="paragraph">
+<p>En cambio, un interceptor no global se vincula a componentes, controladores o métodos específicos. Solo se ejecuta en aquellas invocaciones en las que se ha configurado explícitamente, dando un control más fino sobre dónde y cuándo se desea aplicar la lógica de intercepción.</p>
+</div>
+<div class="listingblock">
+<div class="title">Por ejemplo, el siguiente interceptor captura errores durante la ejecución de un endpoint y los transforma en respuestas HTTP consistentes:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">  async intercept(
+    invocationCtx: InvocationContext,
+    next: () =&gt; ValueOrPromise&lt;InvocationResult&gt;,
+  ) {
+    try {
+      // Add pre-invocation logic here
+      console.log(`Intercepting ${invocationCtx.targetName}.${invocationCtx.methodName}`);
+
+      const result = await next();
+      // Add post-invocation logic here
+      console.log(`Result: ${JSON.stringify(result)}`);
+      return result;
+    } catch (err) {
+      // Add error handling logic here
+      throw err;
+    }
+  }</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<div class="title">Los parámetros del interceptor son:</div>
+<ol class="arabic">
+<li>
+<p><strong>invocationCtx: InvocationContext</strong>
+Este objeto representa el contexto de la invocación actual. Contiene información importante como:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>El nombre del objeto (por ejemplo, un controlador o servicio) y el método que se está invocando.</p>
+</li>
+<li>
+<p>Los argumentos pasados al método.</p>
+</li>
+<li>
+<p>Otros metadatos que pueden ser útiles para personalizar el comportamiento del interceptor.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>next: () &#8658; ValueOrPromise&lt;InvocationResult&gt;</strong>
+Este es un callback que, al ser invocado, continúa la cadena de ejecución. Algunas características son:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Permite llamar al siguiente interceptor registrado o, si no hay más, ejecutar el método original.</p>
+</li>
+<li>
+<p>Puede devolver un valor de forma síncrona o una promesa (para operaciones asíncronas).</p>
+</li>
+<li>
+<p>El retorno de <code>next()</code> representa el resultado final de la invocación, el cual puede ser manipulado o registrado por el interceptor antes de retornarlo.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">El interceptor definido anteriormente se puede aplicar a un controlador específico o a toda la aplicación. Para aplicarlo a un controlador, se puede utilizar el decorador <code>@intercept</code> en la clase del controlador:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {intercept, get} from '@loopback/rest';
+import {ErrorInterceptor} from '../interceptors/error.interceptor';
+
+@intercept(SampleInterceptor.BINDING_KEY)
+export class MyController {
+
+  @get('/mi-endpoint')
+  async miEndpoint(): Promise&lt;object&gt; {
+    // Lógica del endpoint
+    return {message: 'Funciona con interceptor'};
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Un interceptor a nivel de método sería aplicado de la siguiente manera:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {intercept, get} from '@loopback/rest';
+import {ErrorInterceptor} from '../interceptors/error.interceptor';
+
+export class MyController {
+
+  @get('/mi-endpoint')
+  @intercept(ErrorInterceptor.BINDING_KEY)
+  async miEndpoint(): Promise&lt;object&gt; {
+    // Lógica del endpoint
+    return {message: 'Respuesta del endpoint con interceptor a nivel de método'};
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>El método invokeMethod se utiliza para invocar un método de un objeto (por ejemplo, de un controlador o servicio) de forma que se active la cadena de interceptores registrados. Esto garantiza que, antes, durante o después de la ejecución del método, se ejecute la lógica definida en los interceptores, tanto globales como específicos.</p>
+</div>
+<div class="paragraph">
+<p>Por ejemplo, en lugar de llamar directamente al método:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">const result = await controller.create(aTodo);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se puede invocar el método utilizando invokeMethod de la aplicación:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">const result = await app.invokeMethod(controller, 'create', [aTodo]);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<div class="title">De esta forma, invokeMethod:</div>
+<ul>
+<li>
+<p>Resuelve y ejecuta todos los interceptores asociados al método 'create'.</p>
+</li>
+<li>
+<p>Permite centralizar funcionalidades transversales como el manejo de errores, logging o validaciones.</p>
+</li>
+<li>
+<p>Garantiza que la lógica adicional definida en los interceptores se aplique en la cadena de ejecución antes de retornar el resultado final.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>El paquete @loopback/core provee la función createProxyWithInterceptors, que permite envolver un objeto (por ejemplo, un controlador o servicio) en un proxy. De este modo, se aplican interceptores en cada invocación de sus métodos, lo que posibilita la ejecución de lógica adicional como logging, manejo de errores o validaciones sin modificar la implementación original.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">import {
+  createProxyWithInterceptors,
+  Interceptor,
+  InvocationContext,
+  InvocationResult,
+  ValueOrPromise,
+} from '@loopback/core';
+
+// Definición de un interceptor de ejemplo que realiza logging
+const loggingInterceptor: Interceptor = async (
+  invocationCtx: InvocationContext,
+  next: () =&gt; ValueOrPromise&lt;InvocationResult&gt;,
+) =&gt; {
+  console.log(`Antes de invocar ${invocationCtx.targetName}.${invocationCtx.methodName}`);
+  const result = await next();
+  console.log(`Después de invocar ${invocationCtx.targetName}.${invocationCtx.methodName}: ${JSON.stringify(result)}`);
+  return result;
+};
+
+// Suponiendo que 'controller' es una instancia de un controlador o servicio,
+// se crea un proxy que aplica el interceptor definido.
+const proxiedController = createProxyWithInterceptors(controller, {
+  interceptors: [loggingInterceptor],
+});
+
+// Al invocar métodos del controlador a través del proxy, se activan los interceptores.
+async function testProxy() {
+  // Por ejemplo, llamar al método 'create' del controlador
+  const result = await proxiedController.create(aTodo);
+  console.log('Resultado final:', result);
+}
+
+testProxy();</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_conexión_e_integración_con_bases_de_datos">Conexión e integración con bases de datos</h3>
@@ -1785,7 +1978,7 @@ describe('Calculator', () =&gt; {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-02 08:30:08 +0200
+Last updated 2025-04-04 07:45:50 +0200
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

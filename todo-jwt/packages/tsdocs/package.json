@@ -1,0 +1,71 @@
+{
+  "name": "@loopback/tsdocs",
+  "description": "A package to generate api docs using Microsoft api-extractor and api-documenter",
+  "version": "6.0.12",
+  "keywords": [
+    "LoopBack",
+    "Apidocs",
+    "Reflect"
+  ],
+  "license": "MIT",
+  "bin": {
+    "lb-extract-apidocs": "./bin/extract-apis.js",
+    "lb-document-apidocs": "./bin/document-apis.js",
+    "lb-update-apidocs": "./bin/update-apidocs.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "IBM Corp. and LoopBack contributors",
+  "copyright.owner": "IBM Corp. and LoopBack contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopbackio/loopback-next.git",
+    "directory": "packages/tsdocs"
+  },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
+  "scripts": {
+    "build:tsdocs": "npm run build && npm run -s extract-apidocs && npm run -s document-apidocs && npm run -s update-apidocs",
+    "extract-apidocs": "node bin/extract-apis",
+    "document-apidocs": "node bin/document-apis markdown -i ../../docs/apidocs/models -o ../../docs/site/apidocs",
+    "update-apidocs": "node bin/update-apidocs",
+    "build": "lb-tsc",
+    "build:fixtures": "npm run build --prefix fixtures/monorepo",
+    "clean": "lb-clean loopback-tsdocs*.tgz dist *.tsbuildinfo package",
+    "pretest": "npm run build",
+    "test": "lb-mocha \"dist/__tests__/**/*.js\"",
+    "verify": "npm pack && tar xf loopback-tsdocs*.tgz && tree package && npm run clean"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__",
+    "!/fixtures"
+  ],
+  "dependencies": {
+    "@lerna/project": "^6.4.1",
+    "@microsoft/api-documenter": "^7.23.37",
+    "@microsoft/api-extractor": "^7.42.3",
+    "@npmcli/map-workspaces": "^4.0.2",
+    "@npmcli/package-json": "^6.1.1",
+    "debug": "^4.4.0",
+    "fs-extra": "^11.3.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@loopback/build": "^11.0.10",
+    "@loopback/eslint-config": "^15.0.5",
+    "@loopback/testlab": "^7.0.11",
+    "@loopback/tsdocs-monorepo": "^0.5.10",
+    "@types/debug": "^4.1.12",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^16.18.126",
+    "@types/npmcli__map-workspaces": "^3.0.4",
+    "@types/npmcli__package-json": "^4.0.4"
+  }
+}

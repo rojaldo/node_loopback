@@ -1,0 +1,80 @@
+{
+  "name": "@loopback/authentication-passport",
+  "description": "A package creating adapters between the passport module and @loopback/authentication",
+  "version": "7.0.12",
+  "keywords": [
+    "Passport",
+    "Authentication",
+    "TypeScript"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "IBM Corp. and LoopBack contributors",
+  "copyright.owner": "IBM Corp. and LoopBack contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopbackio/loopback-next.git",
+    "directory": "extensions/authentication-passport"
+  },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
+  "scripts": {
+    "acceptance": "lb-mocha \"dist/__tests__/acceptance/**/*.js\"",
+    "build:apidocs": "lb-apidocs",
+    "build": "lb-tsc",
+    "clean": "lb-clean loopback-authentication-passport*.tgz dist *.tsbuildinfo package",
+    "pretest": "npm run build",
+    "test": "lb-mocha \"dist/__tests__/**/*.js\"",
+    "unit": "lb-mocha \"dist/__tests__/unit/**/*.js\"",
+    "verify": "npm pack && tar xf loopback-authentication-passport*.tgz && tree package && npm run clean"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "peerDependencies": {
+    "@loopback/authentication": "^11.0.0",
+    "@loopback/core": "^6.0.0",
+    "@loopback/rest": "^14.0.0"
+  },
+  "dependencies": {
+    "@loopback/security": "^0.11.12",
+    "passport": "^0.6.0",
+    "tslib": "^2.8.1",
+    "util-promisifyall": "^1.0.6"
+  },
+  "devDependencies": {
+    "@loopback/authentication": "^11.0.12",
+    "@loopback/build": "^11.0.10",
+    "@loopback/core": "^6.1.9",
+    "@loopback/eslint-config": "^15.0.5",
+    "@loopback/mock-oauth2-provider": "^0.9.12",
+    "@loopback/openapi-spec-builder": "^7.0.11",
+    "@loopback/rest": "^14.0.12",
+    "@loopback/testlab": "^7.0.11",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/lodash": "^4.17.16",
+    "@types/node": "^16.18.126",
+    "@types/passport": "^1.0.17",
+    "@types/passport-http": "^0.3.11",
+    "@types/passport-oauth2": "^1.4.17",
+    "@types/qs": "^6.9.18",
+    "axios": "^1.8.3",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "form-data": "^4.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "passport-http": "^0.3.0",
+    "passport-oauth2": "^1.8.0",
+    "qs": "^6.14.0",
+    "supertest": "^7.0.0"
+  }
+}

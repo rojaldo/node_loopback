@@ -300,6 +300,59 @@ describe('Pruebas con configuración inicial', () => {
 
 Al utilizar estos hooks de manera estratégica, se mejora la robustez y fiabilidad de los tests, permitiendo que el entorno de pruebas se mantenga consistente y predecible a lo largo de la ejecución.
 
+==== Comprobadores en mocha
+
+Chai es la librería de aserciones comúnmente utilizada con Mocha y ofrece tres estilos principales para escribir "expects": **expect**, **should** y **assert**. A continuación se explica intensivamente cada uno:
+
+== 1. Estilo Expect
+
+Utiliza la función `expect` para crear aserciones encadenadas de forma natural y legible.
+
+[source, js]
+----
+const { expect } = require('chai');
+
+expect(2 + 2).to.equal(4);              // Verifica igualdad
+expect('hello').to.be.a('string');      // Verifica el tipo
+expect([1, 2, 3]).to.have.lengthOf(3);  // Verifica la longitud
+expect('Mocha').to.contain('ach');      // Verifica inclusión
+----
+
+== 2. Estilo Should
+
+Extiende los prototipos de los objetos para permitir aserciones directas. Es necesario inicializarlo invocando `should()`.
+
+[source, js]
+----
+const should = require('chai').should();
+
+(2 + 2).should.equal(4);               // Igualdad
+'hello'.should.be.a('string');         // Tipo
+[1, 2, 3].should.have.lengthOf(3);     // Longitud
+'Mocha'.should.contain('ach');         // Inclusión
+----
+
+== 3. Estilo Assert
+
+Utiliza métodos de funciones explícitas para cada tipo de aserción, lo que lo hace más imperativo.
+
+[source, js]
+----
+const assert = require('chai').assert;
+
+assert.equal(2 + 2, 4, 'La suma debe ser 4');           // Igualdad
+assert.typeOf('hello', 'string', 'Debe ser un string');   // Tipo
+assert.lengthOf([1, 2, 3], 3, 'El array debe contener 3 elementos'); // Longitud
+assert.include('Mocha Framework', 'Mocha', 'Debe incluir "Mocha"');   // Inclusión
+----
+
+== Consideraciones
+
+* El estilo **expect** y **should** ofrecen una sintaxis fluida y legible, favoreciendo la interpretación de los tests.
+* El estilo **assert** es más directo y puede ser preferido en entornos donde se quiera evitar la extensión de prototipos.
+
+Cada estilo es compatible con Mocha y la elección depende de las preferencias del equipo y de la consistencia en el código de pruebas.
+
 == 5. Asincronía en las Pruebas
 
 El manejo de operaciones asíncronas es fundamental para probar funcionalidades que dependen de procesos que tardan en completarse, como llamadas a bases de datos, APIs o temporizadores. En esta sección se cubren tres enfoques clave:

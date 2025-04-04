@@ -1,0 +1,54 @@
+{
+  "name": "@loopback/pooling",
+  "description": "Resource pooling service for LoopBack 4",
+  "version": "0.11.12",
+  "keywords": [
+    "loopback-extension",
+    "loopback"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "IBM Corp. and LoopBack contributors",
+  "copyright.owner": "IBM Corp. and LoopBack contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopbackio/loopback-next.git",
+    "directory": "extensions/pooling"
+  },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "build:watch": "lb-tsc --watch",
+    "pretest": "npm run clean && npm run build",
+    "test": "lb-mocha \"dist/__tests__/**/*.js\"",
+    "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "peerDependencies": {
+    "@loopback/core": "^6.0.0"
+  },
+  "dependencies": {
+    "debug": "^4.4.0",
+    "generic-pool": "^3.9.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@loopback/build": "^11.0.10",
+    "@loopback/core": "^6.1.9",
+    "@loopback/testlab": "^7.0.11",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^16.18.126",
+    "typescript": "~5.2.2"
+  }
+}

@@ -1,0 +1,164 @@
+// Copyright IBM Corp. and LoopBack contributors 2017,2020. All Rights Reserved.
+// Node module: @loopback/cli
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
+'use strict';
+
+const path = require('node:path');
+const yeoman = require('yeoman-environment');
+const helpers = require('yeoman-test');
+const fse = require('fs-extra');
+const {stringifyObject} = require('../lib/utils');
+
+exports.testSetUpGen = function (genName, arg) {
+  arg = arg || {};
+  const env = yeoman.createEnv();
+  const name = genName.substring(genName.lastIndexOf(path.sep) + 1);
+  env.register(genName, 'loopback4:' + name);
+  return env.create('loopback4:' + name, arg);
+};
+
+/**
+ * Execute the generator via yeoman-test's run() helper,
+ * detect exitGeneration flag and convert it into promise rejection.
+ *
+ * @param {string} GeneratorOrNamespace
+ * @param {object} [settings]
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+exports.executeGenerator = function (GeneratorOrNamespace, settings) {
+  const runner = helpers.run(GeneratorOrNamespace, settings);
+
+  // Override .then() and .catch() methods to detect our custom
+  // "exit with error" handling
+  runner.toPromise = function () {
+    return new Promise((resolve, reject) => {
+      this.on('end', () => {
+        if (this.generator.exitGeneration instanceof Error) {
+          reject(this.generator.exitGeneration);
+        } else if (this.generator.exitGeneration) {
+          reject(new Error(this.generator.exitGeneration));
+        } else {
+          resolve(this.targetDirectory);
+        }
+      });
+      this.on('error', reject);
+    });
+  };
+
+  return runner;
+};
+
+/**
+ * Helper function for creating a LoopBack 4 Project Directory for
+ * testing.
+ *
+ * @param {string} rootDir Root directory in which to create the project
+ * @param {Object} [options]
+ * @param {Array} [options.additionalFiles] Add additional files
+ * @param {boolean} [options.excludeLoopbackCore] Excludes the '@loopback/core' dependency in package.json
+ * @param {boolean} [options.excludePackageJSON] Excludes package.json
+ * @param {boolean} [options.excludeYoRcJSON] Excludes .yo-rc.json
+ * @param {boolean} [options.excludeControllersDir] Excludes the controllers directory
+ * @param {boolean} [options.excludeModelsDir] Excludes the models directory
+ * @param {boolean} [options.excludeRepositoriesDir] Excludes the repositories directory
+ * @param {boolean} [options.excludeDataSourcesDir] Excludes the datasources directory
+ * @param {boolean} [options.includeDummyModel] Creates a dummy model file in /src/models/product-review.model.ts
+ * @param {boolean} [options.includeDummyRepository] Creates a dummy repository file in /src/repositories/bar.repository.ts
+ * @param {boolean} [options.includeSandboxFilesFixtures] creates files specified in SANDBOX_FILES array
+ */
+exports.givenLBProject = function (rootDir, options = {}) {
+  const sandBoxFiles = options.additionalFiles || [];
+
+  const content = {
+    dependencies: {
+      '@loopback/core': '*',
+    },
+  };
+
+  // We infer if a project is loopback by checking whether its dependencies includes @loopback/core or not.
+  // This flag is created for testing invalid loopback projects.
+  if (options.excludeLoopbackCore) {
+    delete content.dependencies['@loopback/core'];
+  }
+
+  if (!options.excludePackageJSON) {
+    fse.writeFileSync(
+      path.join(rootDir, 'package.json'),
+      JSON.stringify(content),
+    );
+  }
+
+  if (!options.excludeYoRcJSON) {
+    fse.writeFileSync(path.join(rootDir, '.yo-rc.json'), JSON.stringify({}));
+  }
+
+  fse.mkdirSync(path.join(rootDir, 'src'));
+
+  if (!options.excludeControllersDir) {
+    fse.mkdirSync(path.join(rootDir, 'src', 'controllers'));
+  }
+
+  if (!options.excludeModelsDir) {
+    fse.mkdirSync(path.join(rootDir, 'src', 'models'));
+  }
+
+  if (!options.excludeRepositoriesDir) {
+    fse.mkdirSync(path.join(rootDir, 'src', 'repositories'));
+  }
+
+  if (!options.excludeDataSourcesDir) {
+    fse.mkdirSync(path.join(rootDir, 'src', 'datasources'));
+  }
+
+  if (options.includeDummyModel) {
+    const modelPath = path.join(rootDir, '/src/models/product-review.model.ts');
+    fse.writeFileSync(modelPath, '--DUMMY VALUE--');
+  }
+
+  if (options.includeDummyRepository) {
+    const repoPath = path.join(rootDir, '/src/repositories/bar.repository.ts');
+    fse.writeFileSync(repoPath, '--DUMMY VALUE--');
+  }
+
+  if (sandBoxFiles.length > 0) {
+    for (const theFile of sandBoxFiles) {
+      const fullPath = path.join(rootDir, theFile.path, theFile.file);
+      if (!fse.existsSync(fullPath)) {
+        fse.ensureDirSync(path.dirname(fullPath));
+        fse.writeFileSync(fullPath, theFile.content);
+      }
+    }
+  }
+};
+
+/**
+ * Create a TypeScript source code for a file defining a new datasource,
+ * e.g. `src/datasources/db.datasource.ts`.
+ *
+ * @param {string} className The name of the DataSource class to use, e.g.
+ * `DbDataSource`.
+ * @param {object} config DataSource configuration, e.g. `{connector: 'memory'}`.
+ * @returns {string}
+ */
+exports.getSourceForDataSourceClassWithConfig = function (className, config) {
+  return `
+import {inject} from '@loopback/core';
+import {juggler} from '@loopback/repository';
+
+const config = ${stringifyObject(config, {inlineCharacterLimit: 0})};
+
+export class ${className} extends juggler.DataSource {
+  static dataSourceName = config.name;
+  static readonly defaultConfig = config;
+
+  constructor(
+    @inject(\`datasources.config.${config.name}\`, {optional: true})
+    dsConfig: object = config,
+  ) {
+    super(dsConfig);
+  }
+}
+`;
+};

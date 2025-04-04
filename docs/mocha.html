@@ -471,6 +471,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_uso_de_hooks_before_after_beforeeach_aftereach">Uso de hooks: before, after, beforeEach, afterEach</a></li>
 </ul>
 </li>
+<li><a href="#_1_estilo_expect">1. Estilo Expect</a></li>
+<li><a href="#_2_estilo_should">2. Estilo Should</a></li>
+<li><a href="#_3_estilo_assert">3. Estilo Assert</a></li>
+<li><a href="#_consideraciones">Consideraciones</a></li>
 <li><a href="#_5_asincronía_en_las_pruebas">5. Asincronía en las Pruebas</a>
 <ul class="sectlevel2">
 <li><a href="#_pruebas_con_callbacks_y_promesas">Pruebas con callbacks y promesas</a></li>
@@ -973,6 +977,84 @@ describe('Validación de cadenas', () =&gt; {
 <div class="paragraph">
 <p>Al utilizar estos hooks de manera estratégica, se mejora la robustez y fiabilidad de los tests, permitiendo que el entorno de pruebas se mantenga consistente y predecible a lo largo de la ejecución.</p>
 </div>
+<div class="sect3">
+<h4 id="_expects_en_mocha">Expects en mocha</h4>
+<div class="paragraph">
+<p>Chai es la librería de aserciones comúnmente utilizada con Mocha y ofrece tres estilos principales para escribir "expects": <strong>expect</strong>, <strong>should</strong> y <strong>assert</strong>. A continuación se explica intensivamente cada uno:</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_estilo_expect">1. Estilo Expect</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Utiliza la función <code>expect</code> para crear aserciones encadenadas de forma natural y legible.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">const { expect } = require('chai');
+
+expect(2 + 2).to.equal(4);              // Verifica igualdad
+expect('hello').to.be.a('string');      // Verifica el tipo
+expect([1, 2, 3]).to.have.lengthOf(3);  // Verifica la longitud
+expect('Mocha').to.contain('ach');      // Verifica inclusión</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_estilo_should">2. Estilo Should</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Extiende los prototipos de los objetos para permitir aserciones directas. Es necesario inicializarlo invocando <code>should()</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">const should = require('chai').should();
+
+(2 + 2).should.equal(4);               // Igualdad
+'hello'.should.be.a('string');         // Tipo
+[1, 2, 3].should.have.lengthOf(3);     // Longitud
+'Mocha'.should.contain('ach');         // Inclusión</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_estilo_assert">3. Estilo Assert</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Utiliza métodos de funciones explícitas para cada tipo de aserción, lo que lo hace más imperativo.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">const assert = require('chai').assert;
+
+assert.equal(2 + 2, 4, 'La suma debe ser 4');           // Igualdad
+assert.typeOf('hello', 'string', 'Debe ser un string');   // Tipo
+assert.lengthOf([1, 2, 3], 3, 'El array debe contener 3 elementos'); // Longitud
+assert.include('Mocha Framework', 'Mocha', 'Debe incluir "Mocha"');   // Inclusión</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_consideraciones">Consideraciones</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>El estilo <strong>expect</strong> y <strong>should</strong> ofrecen una sintaxis fluida y legible, favoreciendo la interpretación de los tests.</p>
+</li>
+<li>
+<p>El estilo <strong>assert</strong> es más directo y puede ser preferido en entornos donde se quiera evitar la extensión de prototipos.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Cada estilo es compatible con Mocha y la elección depende de las preferencias del equipo y de la consistencia en el código de pruebas.</p>
 </div>
 </div>
 </div>
@@ -1557,7 +1639,7 @@ describe('Prueba de interacción con callback', () =&gt; {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-31 09:24:47 +0200
+Last updated 2025-04-04 08:05:32 +0200
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

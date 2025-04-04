@@ -632,6 +632,148 @@ export class MysqlDataSource extends juggler.DataSource {
 }
 ----
 
+==== Interceptores
+
+Los interceptores en Loopback son componentes que permiten inyectar lógica adicional en el ciclo de vida de una solicitud, similar a lo que hace un middleware. Su función es ejecutar código antes, durante o después de la ejecución de un endpoint, lo que facilita:
+
+* La gestión centralizada de errores.
+* El registro (logging) de eventos.
+* La aplicación de validaciones o transformaciones de datos.
+
+Un interceptor global se registra a nivel de la aplicación (por ejemplo, mediante el método `this.interceptor(...)` en la configuración de la aplicación). Esto significa que se aplica a **todas** las invocaciones de métodos dentro de la aplicación, permitiendo centralizar funcionalidades transversales como manejo de errores, logging o validaciones.
+
+En cambio, un interceptor no global se vincula a componentes, controladores o métodos específicos. Solo se ejecuta en aquellas invocaciones en las que se ha configurado explícitamente, dando un control más fino sobre dónde y cuándo se desea aplicar la lógica de intercepción.
+
+.Por ejemplo, el siguiente interceptor captura errores durante la ejecución de un endpoint y los transforma en respuestas HTTP consistentes:
+
+[source, typescript]
+----
+  async intercept(
+    invocationCtx: InvocationContext,
+    next: () => ValueOrPromise<InvocationResult>,
+  ) {
+    try {
+      // Add pre-invocation logic here
+      console.log(`Intercepting ${invocationCtx.targetName}.${invocationCtx.methodName}`);
+      
+      const result = await next();
+      // Add post-invocation logic here
+      console.log(`Result: ${JSON.stringify(result)}`);
+      return result;
+    } catch (err) {
+      // Add error handling logic here
+      throw err;
+    }
+  }
+----
+
+.Los parámetros del interceptor son:
+1. **invocationCtx: InvocationContext**  
+   Este objeto representa el contexto de la invocación actual. Contiene información importante como:
+   - El nombre del objeto (por ejemplo, un controlador o servicio) y el método que se está invocando.
+   - Los argumentos pasados al método.
+   - Otros metadatos que pueden ser útiles para personalizar el comportamiento del interceptor.
+   
+2. **next: () => ValueOrPromise<InvocationResult>**  
+   Este es un callback que, al ser invocado, continúa la cadena de ejecución. Algunas características son:
+   - Permite llamar al siguiente interceptor registrado o, si no hay más, ejecutar el método original.
+   - Puede devolver un valor de forma síncrona o una promesa (para operaciones asíncronas).
+   - El retorno de `next()` representa el resultado final de la invocación, el cual puede ser manipulado o registrado por el interceptor antes de retornarlo.
+
+
+.El interceptor definido anteriormente se puede aplicar a un controlador específico o a toda la aplicación. Para aplicarlo a un controlador, se puede utilizar el decorador `@intercept` en la clase del controlador:
+[source, typescript]
+----
+import {intercept, get} from '@loopback/rest';
+import {ErrorInterceptor} from '../interceptors/error.interceptor';
+
+@intercept(SampleInterceptor.BINDING_KEY)
+export class MyController {
+
+  @get('/mi-endpoint')
+  async miEndpoint(): Promise<object> {
+    // Lógica del endpoint
+    return {message: 'Funciona con interceptor'};
+  }
+}
+----
+
+.Un interceptor a nivel de método sería aplicado de la siguiente manera:
+[source, typescript]
+----
+import {intercept, get} from '@loopback/rest';
+import {ErrorInterceptor} from '../interceptors/error.interceptor';
+
+export class MyController {
+  
+  @get('/mi-endpoint')
+  @intercept(ErrorInterceptor.BINDING_KEY)
+  async miEndpoint(): Promise<object> {
+    // Lógica del endpoint
+    return {message: 'Respuesta del endpoint con interceptor a nivel de método'};
+  }
+}
+----
+
+El método invokeMethod se utiliza para invocar un método de un objeto (por ejemplo, de un controlador o servicio) de forma que se active la cadena de interceptores registrados. Esto garantiza que, antes, durante o después de la ejecución del método, se ejecute la lógica definida en los interceptores, tanto globales como específicos.
+
+Por ejemplo, en lugar de llamar directamente al método:
+[source, typescript]
+----
+const result = await controller.create(aTodo);
+----
+
+Se puede invocar el método utilizando invokeMethod de la aplicación:
+[source, typescript]
+----
+const result = await app.invokeMethod(controller, 'create', [aTodo]);
+----
+
+.De esta forma, invokeMethod:
+* Resuelve y ejecuta todos los interceptores asociados al método 'create'.
+* Permite centralizar funcionalidades transversales como el manejo de errores, logging o validaciones.
+* Garantiza que la lógica adicional definida en los interceptores se aplique en la cadena de ejecución antes de retornar el resultado final.
+
+
+El paquete @loopback/core provee la función createProxyWithInterceptors, que permite envolver un objeto (por ejemplo, un controlador o servicio) en un proxy. De este modo, se aplican interceptores en cada invocación de sus métodos, lo que posibilita la ejecución de lógica adicional como logging, manejo de errores o validaciones sin modificar la implementación original.
+
+[source, typescript]
+----
+import {
+  createProxyWithInterceptors,
+  Interceptor,
+  InvocationContext,
+  InvocationResult,
+  ValueOrPromise,
+} from '@loopback/core';
+
+// Definición de un interceptor de ejemplo que realiza logging
+const loggingInterceptor: Interceptor = async (
+  invocationCtx: InvocationContext,
+  next: () => ValueOrPromise<InvocationResult>,
+) => {
+  console.log(`Antes de invocar ${invocationCtx.targetName}.${invocationCtx.methodName}`);
+  const result = await next();
+  console.log(`Después de invocar ${invocationCtx.targetName}.${invocationCtx.methodName}: ${JSON.stringify(result)}`);
+  return result;
+};
+
+// Suponiendo que 'controller' es una instancia de un controlador o servicio,
+// se crea un proxy que aplica el interceptor definido.
+const proxiedController = createProxyWithInterceptors(controller, {
+  interceptors: [loggingInterceptor],
+});
+
+// Al invocar métodos del controlador a través del proxy, se activan los interceptores.
+async function testProxy() {
+  // Por ejemplo, llamar al método 'create' del controlador
+  const result = await proxiedController.create(aTodo);
+  console.log('Resultado final:', result);
+}
+
+testProxy();
+----
+
 === Conexión e integración con bases de datos
 Loopback simplifica la integración con diversas bases de datos y otras fuentes de información mediante el uso de adaptadores (connectors). Entre las características principales se encuentran:
 

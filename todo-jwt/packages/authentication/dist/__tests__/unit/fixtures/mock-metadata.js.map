@@ -1,0 +1,1 @@
+{"version":3,"file":"mock-metadata.js","sourceRoot":"","sources":["../../../../src/__tests__/unit/fixtures/mock-metadata.ts"],"names":[],"mappings":";;;AAEA,MAAM,OAAO,GAAG,EAAC,OAAO,EAAE,QAAQ,EAAE,OAAO,EAAE,QAAQ,EAAC,CAAC;AAE1C,QAAA,0BAA0B,GAA2B;IAChE,QAAQ,EAAE,cAAc;IACxB,OAAO;CACR,CAAC;AAEW,QAAA,2BAA2B,GAA2B;IACjE,QAAQ,EAAE,eAAe;IACzB,OAAO;CACR,CAAC"}
