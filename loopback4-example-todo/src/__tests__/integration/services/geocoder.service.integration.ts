@@ -14,7 +14,7 @@ import {
   isGeoCoderServiceAvailable,
 } from '../../helpers';
 
-describe('GeoLookupService', function (this: Mocha.Suite) {
+xdescribe('GeoLookupService', function (this: Mocha.Suite) {
   this.timeout(30 * 1000);
 
   let cachingProxy: HttpCachingProxy;

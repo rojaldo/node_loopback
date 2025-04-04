@@ -9,3 +9,4 @@ export * from './calculator.controller';
 export * from './users.controller';
 export * from './books.controller';
 export * from './open-api.controller';
+export * from './categories.controller';

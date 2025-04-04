@@ -11,11 +11,11 @@ let CalculatorResponse = class CalculatorResponse extends repository_1.Model {
 exports.CalculatorResponse = CalculatorResponse;
 tslib_1.__decorate([
     (0, repository_1.property)({
-        type: 'string',
+        type: 'number',
         required: true,
     }),
-    tslib_1.__metadata("design:type", String)
-], CalculatorResponse.prototype, "reponse", void 0);
+    tslib_1.__metadata("design:type", Number)
+], CalculatorResponse.prototype, "response", void 0);
 tslib_1.__decorate([
     (0, repository_1.property)({
         type: 'date',

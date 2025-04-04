@@ -11,4 +11,6 @@ tslib_1.__exportStar(require("./calculator-response.model"), exports);
 tslib_1.__exportStar(require("./user.model"), exports);
 tslib_1.__exportStar(require("./book.model"), exports);
 tslib_1.__exportStar(require("./trivia-question.model"), exports);
+tslib_1.__exportStar(require("./category.model"), exports);
+tslib_1.__exportStar(require("./error-response.model"), exports);
 //# sourceMappingURL=index.js.map

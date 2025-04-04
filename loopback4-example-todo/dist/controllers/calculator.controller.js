@@ -18,7 +18,7 @@ let CalculatorController = class CalculatorController {
         }
         let result = await this.calculatorService.calculate(num1, num2, operation);
         return new calculator_response_model_1.CalculatorResponse({
-            reponse: `The result of ${operation} between ${num1} and ${num2} is ${result}`,
+            response: result,
             timestamp: (new Date()).toISOString(),
         });
     }

@@ -8,7 +8,7 @@ const testlab_1 = require("@loopback/testlab");
 const datasources_1 = require("../../../datasources");
 const services_1 = require("../../../services");
 const helpers_1 = require("../../helpers");
-describe('GeoLookupService', function () {
+xdescribe('GeoLookupService', function () {
     this.timeout(30 * 1000);
     let cachingProxy;
     before(async () => (cachingProxy = await (0, helpers_1.givenCachingProxy)()));

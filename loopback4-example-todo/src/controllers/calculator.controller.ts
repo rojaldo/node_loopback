@@ -29,7 +29,7 @@ export class CalculatorController {
     let result = await this.calculatorService.calculate(num1, num2, operation);
 
     return new CalculatorResponse({
-      reponse: `${result}`,
+      response: result,
       timestamp: (new Date()).toISOString(),
     });
   }

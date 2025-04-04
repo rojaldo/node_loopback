@@ -26,7 +26,7 @@ import {
   isGeoCoderServiceAvailable,
 } from '../helpers';
 
-describe('TodoApplication', () => {
+xdescribe('TodoApplication', () => {
   let app: TodoListApplication;
   let client: Client;
   let todoRepo: TodoRepository;

@@ -10,21 +10,29 @@ let CalculatorService = class CalculatorService {
      * Add service methods here
      */
     async calculate(num1, num2, operation) {
+        let result = 0;
         switch (operation) {
             case 'add':
-                return num1 + num2;
+                result = num1 + num2;
+                break;
             case 'sub':
-                return num1 - num2;
+                result = num1 - num2;
+                break;
             case 'mult':
-                return num1 * num2;
+                result = num1 * num2;
+                break;
             case 'div':
                 if (num2 === 0) {
                     throw new rest_1.HttpErrors.BadRequest('Division by zero is not allowed.');
                 }
-                return num1 / num2;
+                result = num1 / num2;
+                break;
             default:
                 throw new rest_1.HttpErrors.BadRequest('Invalid operation.');
         }
+        // round result to 4 decimals
+        return Math.round(result * 10000) / 10000;
+        // return result;
     }
 };
 exports.CalculatorService = CalculatorService;

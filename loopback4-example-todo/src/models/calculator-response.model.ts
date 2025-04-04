@@ -3,10 +3,10 @@ import {Model, model, property} from '@loopback/repository';
 @model()
 export class CalculatorResponse extends Model {
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  reponse: string;
+  response: number;
 
   @property({
     type: 'date',

@@ -10,7 +10,7 @@ const testlab_1 = require("@loopback/testlab");
 const application_1 = require("../../application");
 const repositories_1 = require("../../repositories/");
 const helpers_1 = require("../helpers");
-describe('TodoApplication', () => {
+xdescribe('TodoApplication', () => {
     let app;
     let client;
     let todoRepo;

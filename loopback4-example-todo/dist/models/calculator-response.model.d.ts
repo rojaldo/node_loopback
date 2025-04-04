@@ -1,6 +1,6 @@
 import { Model } from '@loopback/repository';
 export declare class CalculatorResponse extends Model {
-    reponse: string;
+    response: number;
     timestamp: string;
     constructor(data?: Partial<CalculatorResponse>);
 }

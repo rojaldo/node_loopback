@@ -9,4 +9,5 @@ tslib_1.__exportStar(require("./todo.repository"), exports);
 tslib_1.__exportStar(require("./user.repository"), exports);
 tslib_1.__exportStar(require("./book.repository"), exports);
 tslib_1.__exportStar(require("./trivia-question.repository"), exports);
+tslib_1.__exportStar(require("./category.repository"), exports);
 //# sourceMappingURL=index.js.map

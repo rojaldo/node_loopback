@@ -11,4 +11,5 @@ tslib_1.__exportStar(require("./calculator.controller"), exports);
 tslib_1.__exportStar(require("./users.controller"), exports);
 tslib_1.__exportStar(require("./books.controller"), exports);
 tslib_1.__exportStar(require("./open-api.controller"), exports);
+tslib_1.__exportStar(require("./categories.controller"), exports);
 //# sourceMappingURL=index.js.map

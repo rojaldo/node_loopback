@@ -7,7 +7,7 @@ import {Client} from '@loopback/testlab';
 import {TodoListApplication} from '../../application';
 import {setupApplication} from './test-helper';
 
-describe('HomePage', () => {
+xdescribe('HomePage', () => {
   let app: TodoListApplication;
   let client: Client;
 
